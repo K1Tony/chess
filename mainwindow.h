@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <Chessboard.h>
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
