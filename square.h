@@ -3,45 +3,37 @@
 
 #include "properties.h"
 
-#include <Piece.h>
 #include <qlabel.h>
-#include <algorithm>
-#include "iostream"
 
 class Square
 {
 public:
     Square();
 
-    Square(int rank, int field, QLabel *label);
+    Square(int rank, int file, QLabel *label);
 
-    Square(int rank, Field field, QLabel *label);
+    Square(int rank, File file, QLabel *label);
 
-    void set_attributes(int rank, Field field, QLabel *label);
+    void set_attributes(int rank, File field, QLabel *label);
 
     [[nodiscard]] int rank() const {return rank_;}
 
-    [[nodiscard]] Field field() const {return field_;}
+    [[nodiscard]] File file() const {return file_;}
 
     [[nodiscard]] std::string code() {return code_;}
 
-    [[nodiscard]] Piece &piece() {return piece_;}
-
     [[nodiscard]] QLabel *label() {return label_;}
 
-    void setPiece(const Piece &piece) {piece_ = piece;}
-
 private:
-    int rank_;
-    Field field_;
-
     std::string code_;
-
-    Piece piece_;
-
+    int rank_;
+    File file_;
     QLabel *label_;
-
     void set_code();
+
+signals:
+
+    void clicked();
 };
 
 #endif // SQUARE_H
