@@ -1,5 +1,10 @@
 #include "piece.h"
 
+Piece::Piece(Position position, PieceColor color) {
+    position_ = position;
+    color_ = color;
+}
+
 /*
  * Function checks if a position is taken by another piece, and if that piece can be taken
  *
