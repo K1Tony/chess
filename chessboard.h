@@ -2,19 +2,18 @@
 #define CHESSBOARD_H
 
 #include <Square.h>
-#include <array>
 
 
 class Chessboard
 {
 public:
-    Chessboard();
+    Chessboard(int suqare_size, QWidget *parent = Q_NULLPTR);
 
-    std::array<Square, 8>& operator[](int rank);
+    std::vector< std::unique_ptr<Square> >& operator[](int rank);
 
 
 private:
-    std::array<std::array<Square, 8>, 8> squares_;
+    std::vector< std::vector< std::unique_ptr<Square> > > squares_;
 
 };
 

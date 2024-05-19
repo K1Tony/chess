@@ -5,16 +5,13 @@
 
 #include <qlabel.h>
 
-class Square
+class Square : public QLabel
 {
+    Q_OBJECT
 public:
-    Square();
+    Square(QWidget *parent = Q_NULLPTR) : QLabel(parent) {}
 
-    Square(int rank, int file, QLabel *label);
-
-    Square(int rank, File file, QLabel *label);
-
-    void set_attributes(int rank, File field, QLabel *label);
+    void set_attributes(int rank, File field);
 
     [[nodiscard]] int rank() const {return rank_;}
 
@@ -22,13 +19,10 @@ public:
 
     [[nodiscard]] std::string code() {return code_;}
 
-    [[nodiscard]] QLabel *label() {return label_;}
-
 private:
     std::string code_;
     int rank_;
     File file_;
-    QLabel *label_;
     void set_code();
 
 signals:
