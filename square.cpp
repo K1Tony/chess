@@ -3,25 +3,25 @@
 
 Square::Square() {}
 
-Square::Square(int rank, int field, QLabel *label) :
+Square::Square(int rank, int file, QLabel *label) :
     rank_(rank),
-    field_((Field) field),
+    file_((File) file),
     label_(label)
 {
     set_code();
 }
 
-Square::Square(int rank, Field field, QLabel *label) :
+Square::Square(int rank, File file, QLabel *label) :
     rank_(rank),
-    field_(field),
+    file_(file),
     label_(label)
 {
     set_code();
 }
 
-void Square::set_attributes(int rank, Field field, QLabel *label) {
+void Square::set_attributes(int rank, File file, QLabel *label) {
     rank_ = rank;
-    field_ = field;
+    file_ = file;
     label_ = label;
     set_code();
 }
@@ -29,6 +29,6 @@ void Square::set_attributes(int rank, Field field, QLabel *label) {
 void Square::set_code()
 {
     char code[2];
-    sprintf(code, "%c%d", 'A' + field_, rank_);
+    sprintf(code, "%c%d", 'A' + file_, rank_);
     code_.append(code);
 }

@@ -12,8 +12,10 @@ public:
 
     std::array<Square, 8>& operator[](int rank);
 
+
 private:
     std::array<std::array<Square, 8>, 8> squares_;
+
 };
 
 #endif // CHESSBOARD_H
