@@ -2,18 +2,19 @@
 #define CHESSBOARD_H
 
 #include <Square.h>
+#include <QGridLayout>
 
 
 class Chessboard
 {
 public:
-    Chessboard(int suqare_size, QWidget *parent = Q_NULLPTR);
+    Chessboard(int suqare_size, QGridLayout *layout, QWidget *parent = Q_NULLPTR);
 
-    std::vector< std::unique_ptr<Square> >& operator[](int rank);
+    std::array<Square*, 8>& operator[](int rank);
 
 
 private:
-    std::vector< std::vector< std::unique_ptr<Square> > > squares_;
+    std::array< std::array<Square*, 8>, 8 > squares_;
 
 };
 
