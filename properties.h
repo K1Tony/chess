@@ -16,6 +16,8 @@ typedef struct Position{
     bool operator<(const Position other) const {
         return file_ == other.file_ ? rank_ < other.rank_ : file_ < other.file_;
     }
+
+    bool in_bounds() {return 0 <= file_ && file_ <= 7 && 0 < rank_ && rank_ <= 8;}
 } Position;
 
 #endif // PROPERTIES_H

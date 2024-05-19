@@ -10,18 +10,22 @@ CONFIG += c++23
 
 SOURCES += \
     chessboard.cpp \
+    king.cpp \
     main.cpp \
     mainwindow.cpp \
     pawn.cpp \
     piece.cpp \
+    queen.cpp \
     square.cpp
 
 HEADERS += \
     chessboard.h \
+    king.h \
     mainwindow.h \
     pawn.h \
     piece.h \
     properties.h \
+    queen.h \
     square.h
 
 FORMS += \

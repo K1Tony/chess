@@ -3,8 +3,11 @@
 #include <qevent.h>
 #include <piece.h>
 #include <pawn.h>
+#include <king.h>
+#include <queen.h>
 
 #include <qlabel.h>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -33,8 +36,15 @@ MainWindow::MainWindow(QWidget *parent)
     setFixedSize(width(), square_length * 9);
     std::set<Position> white_positions, black_positions;
     std::vector< std::unique_ptr<Pawn> > white_pawns, black_pawns;
+    auto white_king = std::make_unique<King>(Position(E, 1), WHITE),
+        black_king = std::make_unique<King>(Position(E, 8), BLACK);
     white_pawns.reserve(8);
     black_pawns.reserve(8);
+
+    auto white_queen = std::make_unique<Queen>(Position(A, 3), WHITE),
+        black_queen = std::make_unique<Queen>(Position(D, 6), BLACK);
+    black_positions.insert(black_queen->position());
+    chessboard[white_queen->position().rank_ - 1][white_queen->position().file_].label()->setStyleSheet("QLabel {background-color : cyan}");
 
     for (int i = 0; i < 8; i++) {
         white_pawns.push_back(std::make_unique<Pawn>(Position(i, 2), WHITE));
@@ -45,12 +55,20 @@ MainWindow::MainWindow(QWidget *parent)
         black_positions.insert(Position(i, 8));
     }
 
+    auto v = white_queen->legal_moves(white_positions, black_positions);
+    for (Position &p : v) {
+        chessboard[p.rank_ - 1][p.file_].label()->setStyleSheet("QLabel {background-color : red}");
+    }
+
     for (std::unique_ptr<Pawn> &p : white_pawns) {
         QLabel *label = chessboard[p->position().rank_ - 1][p->position().file_].label();
         label->setText("WP");
     }
     for (std::unique_ptr<Pawn> &p : black_pawns) {
         chessboard[p->position().rank_ - 1][p->position().file_].label()->setText("BP");
+    }
+    for (Position &p : white_king->legal_moves(white_positions, black_positions)) {
+        chessboard[p.rank_ - 1][p.file_].label()->setStyleSheet("QLabel {background-color : red}");
     }
 }
 

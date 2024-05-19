@@ -7,6 +7,12 @@
 #include <chessboard.h>
 #include <set>
 
+void fill_rook_moves(const Position &position, const std::set<Position> &positionsA,
+                     const std::set<Position> &positionsB, std::vector<Position> &result);
+
+void fill_diagonals(const Position &position, const std::set<Position> &positionsA,
+                    const std::set<Position> &positionsB, std::vector<Position> &result);
+
 enum PieceColor{
     WHITE, BLACK
 };
