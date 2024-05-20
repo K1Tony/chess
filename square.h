@@ -28,6 +28,14 @@ private:
 signals:
 
     void clicked();
+
+protected:
+
+    void mousePressEvent(QMouseEvent *event);
+
+public slots:
+
+    void highlight(const QString &color);
 };
 
 #endif // SQUARE_H

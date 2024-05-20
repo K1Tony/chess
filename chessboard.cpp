@@ -15,13 +15,13 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
             } else {
                 square->setStyleSheet("QLabel {background-color : #FFEED4}");
             }
-            squares_[i][j] = square;
+            squares_[i][j].reset(square);
             layout->addWidget(square, 7 - i, j);
         }
     }
 }
 
-std::array< Square*, 8 >& Chessboard::operator[](int rank)
+std::array< std::unique_ptr<Square>, 8 >& Chessboard::operator[](int rank)
 {
     return squares_[rank];
 }

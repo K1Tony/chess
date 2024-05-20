@@ -1,13 +1,17 @@
 #include "knight.h"
 
 
-Knight::Knight(Position position, PieceColor color)
+Knight::Knight(Position position, PieceColor color) : Piece(position, color)
 {
-    position_ = position;
-    color_ = color;
+    if (color == WHITE)
+        pixmap_.reset(new QPixmap(":/graphics/resources/white-knight.png"));
+    else
+        pixmap_.reset(new QPixmap(":/graphics/resources/black-knight.png"));
 }
 
-std::vector<Position> Knight::legal_moves(const std::set<Position> &white_positions, const std::set<Position> &black_positions)
+std::vector<Position> Knight::legal_moves(
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &white_positions,
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &black_positions)
 {
     std::vector<Position> result;
     result.reserve(8);
@@ -20,9 +24,9 @@ std::vector<Position> Knight::legal_moves(const std::set<Position> &white_positi
 
     for (Position &p : moves) {
         if (!p.in_bounds()) continue;
-        if (color_ == WHITE && white_positions.count(p) == 0) {
+        if (color_ == WHITE && white_positions->count(p) == 0) {
             result.push_back(p);
-        } else if (color_ == BLACK && black_positions.count(p) == 0) {
+        } else if (color_ == BLACK && black_positions->count(p) == 0) {
             result.push_back(p);
         }
     }

@@ -8,7 +8,9 @@
 #include <rook.h>
 #include <bishop.h>
 #include <knight.h>
+#include <QPair>
 
+#include <QPushButton>
 #include <qlabel.h>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -19,70 +21,44 @@ MainWindow::MainWindow(QWidget *parent)
 
     int playing_area = this->width() * 0.8;
     int square_length = playing_area / 8;
-    Chessboard chessboard(square_length, ui->gridLayout, ui->centralwidget);
+
+    // Chessboard init
+    chessboard_.reset(new Chessboard(square_length, ui->gridLayout, ui->centralwidget));
 
     setFixedSize(width(), square_length * 9);
-    std::set<Position> white_positions, black_positions;
-    std::vector< std::unique_ptr<Pawn> > white_pawns, black_pawns;
-    auto white_king = std::make_unique<King>(Position(E, 1), WHITE),
-        black_king = std::make_unique<King>(Position(E, 8), BLACK);
-    white_pawns.reserve(8);
-    black_pawns.reserve(8);
 
-    auto white_queen = std::make_unique<Queen>(Position(A, 3), WHITE),
-        black_queen = std::make_unique<Queen>(Position(D, 6), BLACK);
-    black_positions.insert(black_queen->position());
-
-    auto bishop = std::make_unique<Knight>(Position(F, 5), BLACK);
-    QPixmap white_pawn_pm(":/graphics/resources/white-pawn.png"),
-        black_pawn_pm(":/graphics/resources/black-pawn.png"),
-        white_knight_pm(":/graphics/resources/white-knight.png"),
-        black_knight_pm(":/graphics/resources/black-knight.png"),
-        white_bishop_pm(":/graphics/resources/white-bishop.png"),
-        black_bishop_pm(":/graphics/resources/black-bishop.png"),
-        white_rook_pm(":/graphics/resources/white-rook.png"),
-        black_rook_pm(":/graphics/resources/black-rook.png"),
-        white_queen_pm(":/graphics/resources/white-queen.png"),
-        black_queen_pm(":/graphics/resources/black-queen.png"),
-        white_king_pm(":/graphics/resources/white-king.png"),
-        black_king_pm(":/graphics/resources/black-king.png");
-
+    // Adding pieces
+    white_pieces_.reset(new std::map<Position, std::unique_ptr<Piece> >);
+    black_pieces_.reset(new std::map<Position, std::unique_ptr<Piece> >);
     for (int i = 0; i < 8; i++) {
-        white_pawns.push_back(std::make_unique<Pawn>(Position(i, 2), WHITE));
-        black_pawns.push_back(std::make_unique<Pawn>(Position(i, 7), BLACK));
-        chessboard[1][i]->setPixmap(white_pawn_pm);
-        chessboard[6][i]->setPixmap(black_pawn_pm);
-        white_positions.insert(Position(i, 1));
-        white_positions.insert(Position(i, 2));
-        black_positions.insert(Position(i, 7));
-        black_positions.insert(Position(i, 8));
+        Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
+        white_pieces_->insert({white_pawn, std::make_unique<Pawn>(white_pawn, WHITE)});
+        black_pieces_->insert({black_pawn, std::make_unique<Pawn>(black_pawn, BLACK)});
+        if (i == A || i == H) {
+            white_pieces_->insert({white_piece, std::make_unique<Rook>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_unique<Rook>(black_piece, BLACK)});
+        } else if (i == B || i == G) {
+            white_pieces_->insert({white_piece, std::make_unique<Knight>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_unique<Knight>(black_piece, BLACK)});
+        } else if (i == C || i == F) {
+            white_pieces_->insert({white_piece, std::make_unique<Bishop>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_unique<Bishop>(black_piece, BLACK)});
+        } else if (i == D) {
+            white_pieces_->insert({white_piece, std::make_unique<Queen>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_unique<Queen>(black_piece, BLACK)});
+        } else {
+            white_pieces_->insert({white_piece, std::make_unique<King>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_unique<King>(black_piece, BLACK)});
+        }
     }
 
-    // Rooks
-    chessboard[0][A]->setPixmap(white_rook_pm);
-    chessboard[0][H]->setPixmap(white_rook_pm);
-    chessboard[7][A]->setPixmap(black_rook_pm);
-    chessboard[7][H]->setPixmap(black_rook_pm);
+    for (auto &pair : *white_pieces_) {
+        (*chessboard_)[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
+    }
+    for (auto &pair : *black_pieces_) {
+        (*chessboard_)[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
+    }
 
-    // Bishops
-    chessboard[0][C]->setPixmap(white_bishop_pm);
-    chessboard[0][F]->setPixmap(white_bishop_pm);
-    chessboard[7][C]->setPixmap(black_bishop_pm);
-    chessboard[7][F]->setPixmap(black_bishop_pm);
-
-    // Knights
-    chessboard[0][B]->setPixmap(white_knight_pm);
-    chessboard[0][G]->setPixmap(white_knight_pm);
-    chessboard[7][B]->setPixmap(black_knight_pm);
-    chessboard[7][G]->setPixmap(black_knight_pm);
-
-    // Queens
-    chessboard[0][D]->setPixmap(white_queen_pm);
-    chessboard[7][D]->setPixmap(black_queen_pm);
-
-    // Kings
-    chessboard[0][E]->setPixmap(white_king_pm);
-    chessboard[7][E]->setPixmap(black_king_pm);
 }
 
 MainWindow::~MainWindow()

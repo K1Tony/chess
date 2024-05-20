@@ -10,11 +10,11 @@ class Chessboard
 public:
     Chessboard(int suqare_size, QGridLayout *layout, QWidget *parent = Q_NULLPTR);
 
-    std::array<Square*, 8>& operator[](int rank);
+    std::array<std::unique_ptr<Square>, 8> &operator[](int rank);
 
 
 private:
-    std::array< std::array<Square*, 8>, 8 > squares_;
+    std::array< std::array< std::unique_ptr<Square>, 8>, 8 > squares_;
 
 };
 

@@ -1,11 +1,16 @@
 #include "queen.h"
 
-Queen::Queen(Position position, PieceColor color) {
-    position_ = position;
-    color_ = color;
+Queen::Queen(Position position, PieceColor color) : Piece(position, color)
+{
+    if (color == WHITE)
+        pixmap_.reset(new QPixmap(":/graphics/resources/white-queen.png"));
+    else
+        pixmap_.reset(new QPixmap(":/graphics/resources/black-queen.png"));
 }
 
-std::vector<Position> Queen::legal_moves(const std::set<Position> &white_positions, const std::set<Position> &black_positions)
+std::vector<Position> Queen::legal_moves(
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &white_positions,
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &black_positions)
 {
     std::vector<Position> result;
     result.reserve(28);
