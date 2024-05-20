@@ -59,6 +59,24 @@ MainWindow::MainWindow(QWidget *parent)
         (*chessboard_)[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
     }
 
+    for (int rank = 0; rank < 8; rank++) {
+        for (int file = 0; file < 8; file++) {
+            connect((*chessboard_)[rank][file].get(), &Square::clicked, [this, rank, file] () {
+                Position pos(file, rank + 1);
+                if (this->white_pieces_->count(pos) > 0) {
+                    for (Position &p : this->white_pieces_->at(pos)
+                                           ->legal_moves(this->white_pieces_, this->black_pieces_)) {
+                        (*this->chessboard_)[p.rank_ - 1][p.file_]->highlight("red");
+                    }
+                } else if (this->black_pieces_->count(pos) > 0) {
+                    for (Position &p : this->black_pieces_->at(pos)
+                                           ->legal_moves(this->white_pieces_, this->black_pieces_)) {
+                        (*this->chessboard_)[p.rank_ - 1][p.file_]->highlight("red");
+                    }
+                }
+            });
+        }
+    }
 }
 
 MainWindow::~MainWindow()
