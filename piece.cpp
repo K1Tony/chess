@@ -18,14 +18,20 @@ Piece::Piece(Position position, PieceColor color) {
  * If an ally is occupying the position - you can't move there, whereas
  * if an enemy is there - you can, however you can't move further.
 */
-bool check_placement(const Position &position, const std::set<Position> &positionsA, const std::set<Position> &positionsB, std::vector<Position> &result) {
-    if (positionsA.count(position) > 0) return true;
+bool check_placement(const Position &position,
+                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
+                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                     std::vector<Position> &result) {
+    if (positionsA->count(position) > 0) return true;
     result.push_back(position);
-    if (positionsB.count(position) > 0) return true;
+    if (positionsB->count(position) > 0) return true;
     return false;
 }
 
-void fill_rook_moves(const Position &position, const std::set<Position> &positionsA, const std::set<Position> &positionsB, std::vector<Position> &result)
+void fill_rook_moves(const Position &position,
+                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
+                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                     std::vector<Position> &result)
 {
     File file = position.file_;
     int rank = position.rank_;
@@ -55,7 +61,10 @@ void fill_rook_moves(const Position &position, const std::set<Position> &positio
     }
 }
 
-void fill_diagonals(const Position &position, const std::set<Position> &positionsA, const std::set<Position> &positionsB, std::vector<Position> &result)
+void fill_diagonals(const Position &position,
+                    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
+                    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                    std::vector<Position> &result)
 {
     File file = position.file_;
     int rank = position.rank_;

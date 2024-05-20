@@ -1,12 +1,16 @@
 #include "bishop.h"
 
-Bishop::Bishop(Position position, PieceColor color)
+Bishop::Bishop(Position position, PieceColor color) : Piece(position, color)
 {
-    position_ = position;
-    color_ = color;
+    if (color == WHITE)
+        pixmap_.reset(new QPixmap(":/graphics/resources/white-bishop.png"));
+    else
+        pixmap_.reset(new QPixmap(":/graphics/resources/black-bishop.png"));
 }
 
-std::vector<Position> Bishop::legal_moves(const std::set<Position> &white_positions, const std::set<Position> &black_positions)
+std::vector<Position> Bishop::legal_moves(
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &white_positions,
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &black_positions)
 {
     std::vector<Position> result;
     result.reserve(13);

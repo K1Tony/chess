@@ -6,12 +6,7 @@
 #include "properties.h"
 #include <chessboard.h>
 #include <set>
-
-void fill_rook_moves(const Position &position, const std::set<Position> &positionsA,
-                     const std::set<Position> &positionsB, std::vector<Position> &result);
-
-void fill_diagonals(const Position &position, const std::set<Position> &positionsA,
-                    const std::set<Position> &positionsB, std::vector<Position> &result);
+#include <map>
 
 enum PieceColor{
     WHITE, BLACK
@@ -28,6 +23,8 @@ public:
 
     [[nodiscard]] int color() const {return color_;}
 
+    [[nodiscard]] std::unique_ptr<QPixmap> &pixmap() {return pixmap_;}
+
     void set_color(int color) {color_ = (PieceColor) color;}
 
     void set_color(PieceColor color) {color_ = color;}
@@ -35,14 +32,26 @@ public:
     virtual ~Piece() = default;
 
     virtual std::vector<Position> legal_moves(
-        const std::set<Position> &white_positions,
-        const std::set<Position> &black_positions) = 0;
+        const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &white_positions,
+        const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &black_positions) = 0;
 
 
 protected:
     Position position_;
 
     PieceColor color_;
+
+    std::unique_ptr<QPixmap> pixmap_;
 };
+
+void fill_rook_moves(const Position &position,
+                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
+                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                     std::vector<Position> &result);
+
+void fill_diagonals(const Position &position,
+                    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
+                    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                    std::vector<Position> &result);
 
 #endif // PIECE_H

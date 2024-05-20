@@ -1,14 +1,16 @@
 #include "king.h"
 
-King::King(Position position, PieceColor color)
+King::King(Position position, PieceColor color) : Piece(position, color)
 {
-    position_ = position;
-    color_ = color;
+    if (color == WHITE)
+        pixmap_.reset(new QPixmap(":/graphics/resources/white-king.png"));
+    else
+        pixmap_.reset(new QPixmap(":/graphics/resources/black-king.png"));
 }
 
 std::vector<Position> King::legal_moves(
-    const std::set<Position> &white_positions,
-    const std::set<Position> &black_positions) {
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &white_positions,
+    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &black_positions) {
     File f = position().file_;
     int r = position().rank_;
 
@@ -20,9 +22,9 @@ std::vector<Position> King::legal_moves(
 
     for (Position &p : possibilities) {
         if (p.in_bounds()) {
-            if (color_ == WHITE && white_positions.count(p) == 0) {
+            if (color_ == WHITE && white_positions->count(p) == 0) {
                 result.push_back(p);
-            } else if (color_ == BLACK && black_positions.count(p) == 0) {
+            } else if (color_ == BLACK && black_positions->count(p) == 0) {
                 result.push_back(p);
             }
         }

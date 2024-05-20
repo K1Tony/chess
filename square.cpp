@@ -12,3 +12,17 @@ void Square::set_code()
     sprintf(code, "%c%d", 'A' + file_, rank_);
     code_.append(code);
 }
+
+void Square::mousePressEvent(QMouseEvent *event)
+{
+    emit clicked();
+}
+
+void Square::highlight(const QString &color)
+{
+    QString style = "QLabel {background-color : ";
+    style.append(color);
+    style.append('}');
+    setStyleSheet(style);
+    qDebug() << "Clicked";
+}
