@@ -27,52 +27,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     setFixedSize(width(), square_length * 9);
 
-    // Adding pieces
-    white_pieces_.reset(new std::map<Position, std::unique_ptr<Piece> >);
-    black_pieces_.reset(new std::map<Position, std::unique_ptr<Piece> >);
-    for (int i = 0; i < 8; i++) {
-        Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
-        white_pieces_->insert({white_pawn, std::make_unique<Pawn>(white_pawn, WHITE)});
-        black_pieces_->insert({black_pawn, std::make_unique<Pawn>(black_pawn, BLACK)});
-        if (i == A || i == H) {
-            white_pieces_->insert({white_piece, std::make_unique<Rook>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_unique<Rook>(black_piece, BLACK)});
-        } else if (i == B || i == G) {
-            white_pieces_->insert({white_piece, std::make_unique<Knight>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_unique<Knight>(black_piece, BLACK)});
-        } else if (i == C || i == F) {
-            white_pieces_->insert({white_piece, std::make_unique<Bishop>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_unique<Bishop>(black_piece, BLACK)});
-        } else if (i == D) {
-            white_pieces_->insert({white_piece, std::make_unique<Queen>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_unique<Queen>(black_piece, BLACK)});
-        } else {
-            white_pieces_->insert({white_piece, std::make_unique<King>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_unique<King>(black_piece, BLACK)});
-        }
-    }
-
-    for (auto &pair : *white_pieces_) {
-        (*chessboard_)[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
-    }
-    for (auto &pair : *black_pieces_) {
-        (*chessboard_)[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
-    }
-
-    for (int rank = 0; rank < 8; rank++) {
+    for (int rank = 1; rank <= 8; rank++) {
         for (int file = 0; file < 8; file++) {
-            connect((*chessboard_)[rank][file].get(), &Square::clicked, [this, rank, file] () {
-                Position pos(file, rank + 1);
-                if (this->white_pieces_->count(pos) > 0) {
-                    for (Position &p : this->white_pieces_->at(pos)
-                                           ->legal_moves(this->white_pieces_, this->black_pieces_)) {
-                        (*this->chessboard_)[p.rank_ - 1][p.file_]->highlight("red");
-                    }
-                } else if (this->black_pieces_->count(pos) > 0) {
-                    for (Position &p : this->black_pieces_->at(pos)
-                                           ->legal_moves(this->white_pieces_, this->black_pieces_)) {
-                        (*this->chessboard_)[p.rank_ - 1][p.file_]->highlight("red");
-                    }
+            connect(chessboard_->at(file, rank).get(), &Square::clicked, this, [this, file, rank] () {
+                Position pos(file, rank);
+                if (this->chessboard_->white_pieces()->count(pos) > 0) {
+
+                    this->chessboard_->select_piece(pos, WHITE);
+
+                } else if (this->chessboard_->black_pieces()->count(pos) > 0) {
+
+                    this->chessboard_->select_piece(pos, BLACK);
+
+                } else {
+                    this->chessboard_->reset_move_highlights();
                 }
             });
         }

@@ -9,8 +9,8 @@ King::King(Position position, PieceColor color) : Piece(position, color)
 }
 
 std::vector<Position> King::legal_moves(
-    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &white_positions,
-    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &black_positions) {
+    const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &white_positions,
+    const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &black_positions) {
     File f = position().file_;
     int r = position().rank_;
 

@@ -19,8 +19,8 @@ Piece::Piece(Position position, PieceColor color) {
  * if an enemy is there - you can, however you can't move further.
 */
 bool check_placement(const Position &position,
-                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
-                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsA,
+                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsB,
                      std::vector<Position> &result) {
     if (positionsA->count(position) > 0) return true;
     result.push_back(position);
@@ -29,8 +29,8 @@ bool check_placement(const Position &position,
 }
 
 void fill_rook_moves(const Position &position,
-                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
-                     const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsA,
+                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsB,
                      std::vector<Position> &result)
 {
     File file = position.file_;
@@ -62,8 +62,8 @@ void fill_rook_moves(const Position &position,
 }
 
 void fill_diagonals(const Position &position,
-                    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsA,
-                    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &positionsB,
+                    const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsA,
+                    const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsB,
                     std::vector<Position> &result)
 {
     File file = position.file_;

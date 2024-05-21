@@ -3,6 +3,12 @@
 
 #include <Square.h>
 #include <QGridLayout>
+#include <pawn.h>
+#include <knight.h>
+#include <bishop.h>
+#include <rook.h>
+#include <queen.h>
+#include <king.h>
 
 
 class Chessboard
@@ -12,10 +18,37 @@ public:
 
     std::array<std::unique_ptr<Square>, 8> &operator[](int rank);
 
+    std::unique_ptr<Square> &at(int file, int rank);
+
+    std::unique_ptr<Square> &at(File file, int rank);
+
+    std::unique_ptr<Square> &at(const Position &position);
+
+    [[nodiscard]] std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &white_pieces() {return white_pieces_;}
+
+    [[nodiscard]] std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &black_pieces() {return black_pieces_;}
+
+    [[nodiscard]] std::shared_ptr<Piece> &selected_piece() {return selected_piece_;}
+
+    [[nodiscard]] std::vector<Position> &highlighted_moves() {return highlighted_moves_;}
+
+    void reset_move_highlights();
+
+    void select_piece(Position &position, PieceColor color);
 
 private:
     std::array< std::array< std::unique_ptr<Square>, 8>, 8 > squares_;
 
+    std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > white_pieces_, black_pieces_;
+
+    PieceColor turn_ = WHITE;
+
+    std::shared_ptr<Piece> selected_piece_;
+
+    std::vector<Position> highlighted_moves_;
+
+    QString base_light_color_ = "QLabel {background-color : #FFEED4}",
+        base_dark_color_ = "QLabel {background-color : #B56F07}";
 };
 
 #endif // CHESSBOARD_H

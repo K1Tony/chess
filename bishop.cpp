@@ -9,8 +9,8 @@ Bishop::Bishop(Position position, PieceColor color) : Piece(position, color)
 }
 
 std::vector<Position> Bishop::legal_moves(
-    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &white_positions,
-    const std::unique_ptr< std::map<Position, std::unique_ptr<Piece> > > &black_positions)
+    const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &white_positions,
+    const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &black_positions)
 {
     std::vector<Position> result;
     result.reserve(13);
