@@ -82,6 +82,7 @@ void Chessboard::reset_move_highlights()
         } else {
             at(p)->setStyleSheet(base_light_color_);
         }
+        // at(p)->disconnect(at(selected_piece_->position()).get());
     }
 }
 
@@ -93,5 +94,24 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     highlighted_moves_ = piece->legal_moves(white_pieces_, black_pieces_);
     for (auto &p : highlighted_moves_) {
         at(p)->setStyleSheet("QLabel {background-color : red}");
+        at(p)->connect(at(p).get(), &Square::clicked, at(piece->position()).get(), [this, p] () {
+            this->move(this->selected_piece(), p);
+        });
     }
+}
+
+void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
+{
+    if (piece->color() == WHITE) {
+        at(piece->position())->setPixmap(blank_);
+        at(destination)->setPixmap(*piece->pixmap());
+        white_pieces_->erase(piece->position());
+        white_pieces_->insert({destination, piece});
+    } else {
+        at(piece->position())->setPixmap(blank_);
+        at(destination)->setPixmap(*piece->pixmap());
+        black_pieces_->erase(piece->position());
+        black_pieces_->insert({destination, piece});
+    }
+    piece->set_position(destination);
 }

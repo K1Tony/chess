@@ -28,6 +28,8 @@ public:
 
     void set_color(PieceColor color) {color_ = color;}
 
+    void set_position(const Position position) {position_ = position;}
+
     virtual ~Piece() = default;
 
     virtual std::vector<Position> legal_moves(

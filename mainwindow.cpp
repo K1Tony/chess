@@ -40,7 +40,9 @@ MainWindow::MainWindow(QWidget *parent)
                     this->chessboard_->select_piece(pos, BLACK);
 
                 } else {
+
                     this->chessboard_->reset_move_highlights();
+
                 }
             });
         }

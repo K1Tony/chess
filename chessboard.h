@@ -13,6 +13,7 @@
 
 class Chessboard
 {
+
 public:
     Chessboard(int suqare_size, QGridLayout *layout, QWidget *parent = Q_NULLPTR);
 
@@ -36,6 +37,9 @@ public:
 
     void select_piece(Position &position, PieceColor color);
 
+    void move(std::shared_ptr<Piece> &piece, const Position destination);
+
+// members
 private:
     std::array< std::array< std::unique_ptr<Square>, 8>, 8 > squares_;
 
@@ -49,6 +53,8 @@ private:
 
     QString base_light_color_ = "QLabel {background-color : #FFEED4}",
         base_dark_color_ = "QLabel {background-color : #B56F07}";
+
+    QPixmap blank_ = QPixmap();
 };
 
 #endif // CHESSBOARD_H
