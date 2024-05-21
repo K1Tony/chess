@@ -82,21 +82,24 @@ void Chessboard::reset_move_highlights()
         } else {
             at(p)->setStyleSheet(base_light_color_);
         }
+        at(p)->set_highlight(false);
         // at(p)->disconnect(at(selected_piece_->position()).get());
     }
+    selected_piece_.reset();
 }
 
 void Chessboard::select_piece(Position &position, PieceColor color)
 {
+    reset_move_highlights();
     std::shared_ptr<Piece> &piece = color == WHITE ? white_pieces_->at(position) : black_pieces_->at(position);
     selected_piece_ = piece;
-    reset_move_highlights();
     highlighted_moves_ = piece->legal_moves(white_pieces_, black_pieces_);
     for (auto &p : highlighted_moves_) {
         at(p)->setStyleSheet("QLabel {background-color : red}");
-        at(p)->connect(at(p).get(), &Square::clicked, at(piece->position()).get(), [this, p] () {
-            this->move(this->selected_piece(), p);
-        });
+        at(p)->set_highlight(true);
+        // at(p)->connect(at(p).get(), &Square::clicked, at(p).get(), [this, p] () {
+        //     this->move(this->selected_piece(), p);
+        // });
     }
 }
 
@@ -107,11 +110,24 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
         at(destination)->setPixmap(*piece->pixmap());
         white_pieces_->erase(piece->position());
         white_pieces_->insert({destination, piece});
+        if (black_pieces_->count(destination) > 0) {
+            black_pieces_->erase(destination);
+        }
+        turn_ = BLACK;
     } else {
         at(piece->position())->setPixmap(blank_);
         at(destination)->setPixmap(*piece->pixmap());
         black_pieces_->erase(piece->position());
         black_pieces_->insert({destination, piece});
+        if (white_pieces_->count(destination) > 0) {
+            white_pieces_->erase(destination);
+        }
+        turn_ = WHITE;
     }
     piece->set_position(destination);
+}
+
+void Chessboard::move(const Position destination)
+{
+    move(selected_piece_, destination);
 }

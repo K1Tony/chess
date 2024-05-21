@@ -33,11 +33,15 @@ public:
 
     [[nodiscard]] std::vector<Position> &highlighted_moves() {return highlighted_moves_;}
 
+    [[nodiscard]] PieceColor turn() {return turn_;}
+
     void reset_move_highlights();
 
     void select_piece(Position &position, PieceColor color);
 
     void move(std::shared_ptr<Piece> &piece, const Position destination);
+
+    void move(const Position destination);
 
 // members
 private:

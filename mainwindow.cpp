@@ -31,13 +31,21 @@ MainWindow::MainWindow(QWidget *parent)
         for (int file = 0; file < 8; file++) {
             connect(chessboard_->at(file, rank).get(), &Square::clicked, this, [this, file, rank] () {
                 Position pos(file, rank);
-                if (this->chessboard_->white_pieces()->count(pos) > 0) {
+                if (this->chessboard_->turn() == WHITE &&
+                    this->chessboard_->white_pieces()->count(pos) > 0) {
 
                     this->chessboard_->select_piece(pos, WHITE);
 
-                } else if (this->chessboard_->black_pieces()->count(pos) > 0) {
+                } else if (this->chessboard_->turn() == BLACK &&
+                           this->chessboard_->black_pieces()->count(pos) > 0) {
 
                     this->chessboard_->select_piece(pos, BLACK);
+
+                } else if (this->chessboard_->selected_piece().get() != nullptr &&
+                           this->chessboard_->at(pos)->is_highlighted()){
+
+                    this->chessboard_->move(pos);
+                    this->chessboard_->reset_move_highlights();
 
                 } else {
 
