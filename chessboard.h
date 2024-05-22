@@ -13,7 +13,14 @@
 
 class Chessboard
 {
+// private methods
+private:
 
+    void check_for_castling(PieceColor color);
+
+    std::shared_ptr<Piece> piece_at(const Position &position);
+
+// public methods
 public:
     Chessboard(int suqare_size, QGridLayout *layout, QWidget *parent = Q_NULLPTR);
 
@@ -45,7 +52,7 @@ public:
 
     void move(const Position destination);
 
-// members
+// private members
 private:
     std::array< std::array< std::unique_ptr<Square>, 8>, 8 > squares_;
 

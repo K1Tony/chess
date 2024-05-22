@@ -14,7 +14,7 @@ enum PieceTag{
 };
 
 enum SpecialMoveTag{
-    EN_PASSANT, CASTLING, PROMOTION
+    EN_PASSANT, SHORT_CASTLING, LONG_CASTLING
 };
 
 typedef struct Position{

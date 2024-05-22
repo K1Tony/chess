@@ -94,6 +94,8 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     std::shared_ptr<Piece> &piece = color == WHITE ? white_pieces_->at(position) : black_pieces_->at(position);
     selected_piece_ = piece;
     highlighted_moves_ = piece->legal_moves(white_pieces_, black_pieces_);
+
+    // Check for en passant
     if (last_move_.moved_piece_.get() != nullptr && piece->tag() == PAWN &&
         Pawn::check_en_passant(last_move_, piece)) {
         int available_rank = piece->color() == WHITE ? 6 : 3;
@@ -101,6 +103,13 @@ void Chessboard::select_piece(Position &position, PieceColor color)
         special_moves_.insert({EN_PASSANT, pos});
         highlighted_moves_.push_back(pos);
     }
+
+    // Check for castling
+    if (piece->color() == WHITE)
+        check_for_castling(WHITE);
+
+    // Check for promotions
+    // #TODO
     for (auto &p : highlighted_moves_) {
         at(p)->setStyleSheet("QLabel {background-color : red}");
         at(p)->set_highlight(true);
@@ -115,6 +124,7 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     last_move_.old_ = piece->position();
     last_move_.new_ = destination;
     last_move_.moved_piece_ = piece;
+    piece->set_moved();
     if (piece->color() == WHITE) {
         at(piece->position())->setPixmap(blank_);
         at(destination)->setPixmap(*piece->pixmap());
@@ -126,6 +136,12 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
             Position ep(destination.file_, 5);
             at(ep)->setPixmap(blank_);
             black_pieces_->erase(ep);
+        } else if (special_moves_.count(SHORT_CASTLING) > 0 && destination == special_moves_.at(SHORT_CASTLING)) {
+            at(Position(F, 1))->setPixmap(at(Position(H, 1))->pixmap());
+            at(Position(H, 1))->setPixmap(blank_);
+            white_pieces_->insert({Position(F, 1), white_pieces_->at(Position(H, 1))});
+            white_pieces_->erase(Position(H, 1));
+            white_pieces_->at(Position(F, 1))->set_position(Position(F, 1));
         }
         turn_ = BLACK;
     } else {
@@ -149,4 +165,53 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
 void Chessboard::move(const Position destination)
 {
     move(selected_piece_, destination);
+}
+
+void Chessboard::check_for_castling(PieceColor color)
+{
+    if (color == WHITE && selected_piece_->tag() == KING) {
+        std::shared_ptr<Piece> at_e1 = piece_at(Position(E, 1)),
+            at_a1 = piece_at(Position(A, 1)),
+            at_h1 = piece_at(Position(H, 1));
+        if (at_e1->tag() != KING || at_e1->moved()) return;
+        if (at_a1->tag() == ROOK && !at_a1->moved()) {
+            bool allow_castle = true;
+            for (int f = B; f < E; f++) {
+                if (piece_at(Position(f, 1)).get() == nullptr) {
+                    allow_castle = false;
+                    break;
+                }
+            }
+            if (allow_castle){
+                highlighted_moves_.push_back(Position(C, 1));
+                special_moves_.insert({LONG_CASTLING, Position(C, 1)});
+            }
+        }
+        if (at_h1->tag() == ROOK && !at_h1->moved()) {
+            bool allow_castle = true;
+            for (int f = B; f < E; f++) {
+                if (piece_at(Position(f, 1)).get() == nullptr) {
+                    allow_castle = false;
+                    break;
+                }
+            }
+            if (allow_castle){
+                highlighted_moves_.push_back(Position(G, 1));
+                special_moves_.insert({SHORT_CASTLING, Position(G, 1)});
+            }
+        }
+    } else {
+
+    }
+}
+
+std::shared_ptr<Piece> Chessboard::piece_at(const Position &position)
+{
+    if (white_pieces_->count(position) > 0) {
+        return white_pieces_->at(position);
+    } else if (black_pieces_->count(position) > 0) {
+        return black_pieces_->at(position);
+    }
+    std::shared_ptr<Piece> nptr;
+    return nptr;
 }
