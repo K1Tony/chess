@@ -6,6 +6,7 @@ Queen::Queen(Position position, PieceColor color) : Piece(position, color)
         pixmap_.reset(new QPixmap(":/graphics/resources/white-queen.png"));
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-queen.png"));
+    tag_ = QUEEN;
 }
 
 std::vector<Position> Queen::legal_moves(

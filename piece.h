@@ -7,10 +7,6 @@
 #include <map>
 #include <QPixmap>
 
-enum PieceColor{
-    WHITE, BLACK
-};
-
 class Piece
 {
 public:
@@ -23,6 +19,8 @@ public:
     [[nodiscard]] int color() const {return color_;}
 
     [[nodiscard]] std::unique_ptr<QPixmap> &pixmap() {return pixmap_;}
+
+    [[nodiscard]] PieceTag tag() const {return tag_;}
 
     void set_color(int color) {color_ = (PieceColor) color;}
 
@@ -43,6 +41,8 @@ protected:
     PieceColor color_;
 
     std::unique_ptr<QPixmap> pixmap_;
+
+    PieceTag tag_;
 };
 
 void fill_rook_moves(const Position &position,
@@ -54,5 +54,11 @@ void fill_diagonals(const Position &position,
                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsA,
                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsB,
                     std::vector<Position> &result);
+
+typedef struct LastMove{
+    Position old_;
+    Position new_;
+    std::shared_ptr<Piece> moved_piece_;
+} LastMove;
 
 #endif // PIECE_H

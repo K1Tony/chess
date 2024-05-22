@@ -94,6 +94,13 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     std::shared_ptr<Piece> &piece = color == WHITE ? white_pieces_->at(position) : black_pieces_->at(position);
     selected_piece_ = piece;
     highlighted_moves_ = piece->legal_moves(white_pieces_, black_pieces_);
+    if (last_move_.moved_piece_.get() != nullptr && piece->tag() == PAWN &&
+        Pawn::check_en_passant(last_move_, piece)) {
+        int available_rank = piece->color() == WHITE ? 6 : 3;
+        Position pos(last_move_.old_.file_, available_rank);
+        special_moves_.insert({EN_PASSANT, pos});
+        highlighted_moves_.push_back(pos);
+    }
     for (auto &p : highlighted_moves_) {
         at(p)->setStyleSheet("QLabel {background-color : red}");
         at(p)->set_highlight(true);
@@ -105,6 +112,9 @@ void Chessboard::select_piece(Position &position, PieceColor color)
 
 void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
 {
+    last_move_.old_ = piece->position();
+    last_move_.new_ = destination;
+    last_move_.moved_piece_ = piece;
     if (piece->color() == WHITE) {
         at(piece->position())->setPixmap(blank_);
         at(destination)->setPixmap(*piece->pixmap());
@@ -112,6 +122,10 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
         white_pieces_->insert({destination, piece});
         if (black_pieces_->count(destination) > 0) {
             black_pieces_->erase(destination);
+        } else if (special_moves_.count(EN_PASSANT) > 0 && destination == special_moves_.at(EN_PASSANT)) {
+            Position ep(destination.file_, 5);
+            at(ep)->setPixmap(blank_);
+            black_pieces_->erase(ep);
         }
         turn_ = BLACK;
     } else {
@@ -121,10 +135,15 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
         black_pieces_->insert({destination, piece});
         if (white_pieces_->count(destination) > 0) {
             white_pieces_->erase(destination);
+        } else if (special_moves_.count(EN_PASSANT) > 0 && destination == special_moves_.at(EN_PASSANT)) {
+            Position ep(destination.file_, 4);
+            at(ep)->setPixmap(blank_);
+            white_pieces_->erase(ep);
         }
         turn_ = WHITE;
     }
     piece->set_position(destination);
+    special_moves_.clear();
 }
 
 void Chessboard::move(const Position destination)

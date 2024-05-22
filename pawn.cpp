@@ -8,6 +8,7 @@ Pawn::Pawn(Position position, PieceColor color) : Piece(position, color)
         pixmap_.reset(new QPixmap(":/graphics/resources/white-pawn.png"));
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-pawn.png"));
+    tag_ = PAWN;
 
 }
 
@@ -57,6 +58,20 @@ std::vector<Position> Pawn::legal_moves(
     }
 
     return result;
+}
+
+bool Pawn::check_en_passant(const LastMove &last_move, std::shared_ptr<Piece> &pawn)
+{
+    if (last_move.moved_piece_->tag() != PAWN) return false;
+    if (pawn->color() == WHITE && pawn->position().rank_ != 5) return false;
+    if (pawn->color() == BLACK && pawn->position().rank_ != 4) return false;
+
+    if (pawn->color() == WHITE && last_move.old_.rank_ == 7 && last_move.new_.rank_ == 5) {
+        return true;
+    } else if (pawn->color() == BLACK && last_move.old_.rank_ == 2 && last_move.new_.rank_ == 4) {
+        return true;
+    }
+    return false;
 }
 
 
