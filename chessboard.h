@@ -13,12 +13,6 @@
 
 class Chessboard
 {
-// private methods
-private:
-
-    void check_for_castling(PieceColor color);
-
-    std::shared_ptr<Piece> piece_at(const Position &position);
 
 // public methods
 public:
@@ -44,6 +38,10 @@ public:
 
     [[nodiscard]] LastMove last_move() const {return last_move_;}
 
+    [[nodiscard]] QPixmap &blank() {return blank_;}
+
+    [[nodiscard]] std::map<SpecialMoveTag, Position> &special_moves() {return special_moves_;}
+
     void reset_move_highlights();
 
     void select_piece(Position &position, PieceColor color);
@@ -51,6 +49,8 @@ public:
     void move(std::shared_ptr<Piece> &piece, const Position destination);
 
     void move(const Position destination);
+
+    std::shared_ptr<Piece> piece_at(const Position &position);
 
 // private members
 private:

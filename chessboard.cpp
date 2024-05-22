@@ -1,4 +1,5 @@
 #include "chessboard.h"
+#include "castling_logic.h"
 
 Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
 {
@@ -105,8 +106,13 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     }
 
     // Check for castling
-    if (piece->color() == WHITE)
-        check_for_castling(WHITE);
+    if (piece->color() == WHITE){
+        check_castling(this, LONG_CASTLING, WHITE);
+        check_castling(this, SHORT_CASTLING, WHITE);
+    } else {
+        check_castling(this, LONG_CASTLING, BLACK);
+        check_castling(this, SHORT_CASTLING, BLACK);
+    }
 
     // Check for promotions
     // #TODO
@@ -137,11 +143,9 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
             at(ep)->setPixmap(blank_);
             black_pieces_->erase(ep);
         } else if (special_moves_.count(SHORT_CASTLING) > 0 && destination == special_moves_.at(SHORT_CASTLING)) {
-            at(Position(F, 1))->setPixmap(at(Position(H, 1))->pixmap());
-            at(Position(H, 1))->setPixmap(blank_);
-            white_pieces_->insert({Position(F, 1), white_pieces_->at(Position(H, 1))});
-            white_pieces_->erase(Position(H, 1));
-            white_pieces_->at(Position(F, 1))->set_position(Position(F, 1));
+            castle(this, SHORT_CASTLING, WHITE);
+        } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
+            castle(this, LONG_CASTLING, WHITE);
         }
         turn_ = BLACK;
     } else {
@@ -155,6 +159,10 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
             Position ep(destination.file_, 4);
             at(ep)->setPixmap(blank_);
             white_pieces_->erase(ep);
+        } else if (special_moves_.count(SHORT_CASTLING) > 0 && destination == special_moves_.at(SHORT_CASTLING)) {
+            castle(this, SHORT_CASTLING, BLACK);
+        } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
+            castle(this, LONG_CASTLING, BLACK);
         }
         turn_ = WHITE;
     }
@@ -167,44 +175,6 @@ void Chessboard::move(const Position destination)
     move(selected_piece_, destination);
 }
 
-void Chessboard::check_for_castling(PieceColor color)
-{
-    if (color == WHITE && selected_piece_->tag() == KING) {
-        std::shared_ptr<Piece> at_e1 = piece_at(Position(E, 1)),
-            at_a1 = piece_at(Position(A, 1)),
-            at_h1 = piece_at(Position(H, 1));
-        if (at_e1->tag() != KING || at_e1->moved()) return;
-        if (at_a1->tag() == ROOK && !at_a1->moved()) {
-            bool allow_castle = true;
-            for (int f = B; f < E; f++) {
-                if (piece_at(Position(f, 1)).get() == nullptr) {
-                    allow_castle = false;
-                    break;
-                }
-            }
-            if (allow_castle){
-                highlighted_moves_.push_back(Position(C, 1));
-                special_moves_.insert({LONG_CASTLING, Position(C, 1)});
-            }
-        }
-        if (at_h1->tag() == ROOK && !at_h1->moved()) {
-            bool allow_castle = true;
-            for (int f = B; f < E; f++) {
-                if (piece_at(Position(f, 1)).get() == nullptr) {
-                    allow_castle = false;
-                    break;
-                }
-            }
-            if (allow_castle){
-                highlighted_moves_.push_back(Position(G, 1));
-                special_moves_.insert({SHORT_CASTLING, Position(G, 1)});
-            }
-        }
-    } else {
-
-    }
-}
-
 std::shared_ptr<Piece> Chessboard::piece_at(const Position &position)
 {
     if (white_pieces_->count(position) > 0) {
@@ -212,6 +182,7 @@ std::shared_ptr<Piece> Chessboard::piece_at(const Position &position)
     } else if (black_pieces_->count(position) > 0) {
         return black_pieces_->at(position);
     }
-    std::shared_ptr<Piece> nptr;
+    Piece *piece = nullptr;
+    std::shared_ptr<Piece> nptr(piece);
     return nptr;
 }

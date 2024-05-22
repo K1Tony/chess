@@ -10,6 +10,7 @@ CONFIG += c++23
 
 SOURCES += \
     bishop.cpp \
+    castling_logic.cpp \
     chessboard.cpp \
     king.cpp \
     knight.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
 
 HEADERS += \
     bishop.h \
+    castling_logic.h \
     chessboard.h \
     king.h \
     knight.h \
