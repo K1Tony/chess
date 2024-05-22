@@ -7,6 +7,7 @@ Knight::Knight(Position position, PieceColor color) : Piece(position, color)
         pixmap_.reset(new QPixmap(":/graphics/resources/white-knight.png"));
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-knight.png"));
+    tag_ = KNIGHT;
 }
 
 std::vector<Position> Knight::legal_moves(

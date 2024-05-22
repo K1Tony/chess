@@ -35,6 +35,8 @@ public:
 
     [[nodiscard]] PieceColor turn() {return turn_;}
 
+    [[nodiscard]] LastMove last_move() const {return last_move_;}
+
     void reset_move_highlights();
 
     void select_piece(Position &position, PieceColor color);
@@ -59,6 +61,10 @@ private:
         base_dark_color_ = "QLabel {background-color : #B56F07}";
 
     QPixmap blank_ = QPixmap();
+
+    LastMove last_move_;
+
+    std::map<SpecialMoveTag, Position> special_moves_;
 };
 
 #endif // CHESSBOARD_H

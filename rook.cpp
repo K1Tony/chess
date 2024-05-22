@@ -6,6 +6,7 @@ Rook::Rook(Position position, PieceColor color) : Piece(position, color)
         pixmap_.reset(new QPixmap(":/graphics/resources/white-rook.png"));
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-rook.png"));
+    tag_ = ROOK;
 }
 
 std::vector<Position> Rook::legal_moves(
