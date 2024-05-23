@@ -14,6 +14,16 @@
 class Chessboard
 {
 
+private:
+    void check_castling(SpecialMoveTag castling_style, PieceColor color);
+
+    void castle(SpecialMoveTag castling_style, PieceColor color);
+
+    bool is_attacked(const Position &position);
+
+    void set_available_moves();
+
+// public methods
 public:
     Chessboard(int suqare_size, QGridLayout *layout, QWidget *parent = Q_NULLPTR);
 
@@ -37,6 +47,10 @@ public:
 
     [[nodiscard]] LastMove last_move() const {return last_move_;}
 
+    [[nodiscard]] QPixmap &blank() {return blank_;}
+
+    [[nodiscard]] std::map<SpecialMoveTag, Position> &special_moves() {return special_moves_;}
+
     void reset_move_highlights();
 
     void select_piece(Position &position, PieceColor color);
@@ -45,7 +59,9 @@ public:
 
     void move(const Position destination);
 
-// members
+    std::shared_ptr<Piece> piece_at(const Position &position);
+
+// private members
 private:
     std::array< std::array< std::unique_ptr<Square>, 8>, 8 > squares_;
 

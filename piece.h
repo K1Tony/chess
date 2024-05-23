@@ -22,15 +22,21 @@ public:
 
     [[nodiscard]] PieceTag tag() const {return tag_;}
 
+    [[nodiscard]] bool moved() const {return moved_;}
+
+    [[nodiscard]] std::vector<Position> &legal_moves() {return legal_moves_;}
+
     void set_color(int color) {color_ = (PieceColor) color;}
 
     void set_color(PieceColor color) {color_ = color;}
 
     void set_position(const Position position) {position_ = position;}
 
+    void set_moved() {moved_ = true;}
+
     virtual ~Piece() = default;
 
-    virtual std::vector<Position> legal_moves(
+    virtual void available_moves(
         const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &white_positions,
         const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &black_positions) = 0;
 
@@ -43,6 +49,11 @@ protected:
     std::unique_ptr<QPixmap> pixmap_;
 
     PieceTag tag_;
+
+    bool moved_ = false;
+
+    std::vector<Position> legal_moves_;
+
 };
 
 void fill_rook_moves(const Position &position,

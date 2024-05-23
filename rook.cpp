@@ -9,16 +9,13 @@ Rook::Rook(Position position, PieceColor color) : Piece(position, color)
     tag_ = ROOK;
 }
 
-std::vector<Position> Rook::legal_moves(
+void Rook::available_moves(
     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &white_positions,
     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &black_positions)
 {
-    std::vector<Position> result;
-    result.reserve(14);
     if (color_ == WHITE) {
-        fill_rook_moves(position_, white_positions, black_positions, result);
+        fill_rook_moves(position_, white_positions, black_positions, legal_moves_);
     } else {
-        fill_rook_moves(position_, black_positions, white_positions, result);
+        fill_rook_moves(position_, black_positions, white_positions, legal_moves_);
     }
-    return result;
 }

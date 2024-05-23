@@ -7,7 +7,8 @@ class Rook : public Piece
 {
 public:
     Rook(Position position, PieceColor color);
-    std::vector<Position> legal_moves(
+
+    void available_moves(
         const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &white_positions,
         const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &black_positions)
         override;
