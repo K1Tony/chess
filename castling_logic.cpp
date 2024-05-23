@@ -16,10 +16,11 @@ void castle(Chessboard *chessboard, SpecialMoveTag castling_style, PieceColor co
 
 void check_castling(Chessboard *chessboard, SpecialMoveTag castling_style, PieceColor color)
 {
-    if (chessboard->selected_piece()->tag() != KING) return;
+    if (chessboard->selected_piece()->tag() != KING || chessboard->selected_piece()->moved()) return;
     int rank = color == WHITE ? 1 : 8;
     File file = castling_style == LONG_CASTLING ? C : G;
     Position rook_pos(castling_style == LONG_CASTLING ? A : H, rank);
+    if (chessboard->piece_at(rook_pos)->moved()) return;
     int begin_iteration = castling_style == LONG_CASTLING ? B : F;
     int end_iteration = castling_style == LONG_CASTLING ? E : H;
 

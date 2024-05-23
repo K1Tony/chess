@@ -14,6 +14,15 @@
 class Chessboard
 {
 
+private:
+    void check_castling(SpecialMoveTag castling_style, PieceColor color);
+
+    void castle(SpecialMoveTag castling_style, PieceColor color);
+
+    bool is_attacked(const Position &position);
+
+    void set_available_moves();
+
 // public methods
 public:
     Chessboard(int suqare_size, QGridLayout *layout, QWidget *parent = Q_NULLPTR);
