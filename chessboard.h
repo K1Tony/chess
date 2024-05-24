@@ -29,6 +29,12 @@ private:
 
     void trim_legal_moves();
 
+    bool check_promotion();
+
+    void list_promotions();
+
+    void promote(PieceTag tag);
+
 // public methods
 public:
     Chessboard(int suqare_size, QGridLayout *layout, QWidget *parent = Q_NULLPTR);
@@ -69,6 +75,10 @@ public:
 
 // private members
 private:
+    std::unique_ptr<QWidget> parent_;
+
+    std::unique_ptr<QGridLayout> layout_;
+
     std::array< std::array< std::unique_ptr<Square>, 8>, 8 > squares_;
 
     std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > white_pieces_, black_pieces_;

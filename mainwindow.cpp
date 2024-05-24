@@ -12,6 +12,7 @@
 
 #include <QPushButton>
 #include <qlabel.h>
+#include <QScreen>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,8 +25,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Chessboard init
     chessboard_.reset(new Chessboard(square_length, ui->gridLayout, ui->centralwidget));
-
-    setFixedSize(width(), square_length * 9);
+    for (int i = 0; i < 9; i++) {
+        ui->gridLayout->setColumnMinimumWidth(i, square_length);
+    }
+    for (int i = 0; i < 12; i++) {
+        ui->gridLayout->setRowMinimumHeight(i, square_length);
+    }
+    // setFixedSize(width(), square_length * 11);
 
     for (int rank = 1; rank <= 8; rank++) {
         for (int file = 0; file < 8; file++) {
