@@ -19,6 +19,7 @@ SOURCES += \
     mainwindow.cpp \
     pawn.cpp \
     piece.cpp \
+    promotiondialog.cpp \
     queen.cpp \
     rook.cpp \
     square.cpp
@@ -33,6 +34,7 @@ HEADERS += \
     mainwindow.h \
     pawn.h \
     piece.h \
+    promotiondialog.h \
     properties.h \
     queen.h \
     rook.h \
