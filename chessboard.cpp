@@ -26,6 +26,22 @@ void Chessboard::set_available_moves()
     }
 }
 
+bool Chessboard::scan_checks()
+{
+    auto &king = turn_ == WHITE ? white_king_ : black_king_;
+    return is_attacked(king->position());
+}
+
+void Chessboard::trim_legal_moves()
+{
+    auto &pieces = turn_ == WHITE ? white_pieces_ : black_pieces_;
+    auto &enemies = turn_ == WHITE ? black_pieces_ : white_pieces_;
+
+    for (auto &pair : *pieces) {
+
+    }
+}
+
 void Chessboard::check_castling(SpecialMoveTag castling_style, PieceColor color)
 {
     if (selected_piece_->tag() != KING || selected_piece_->moved()) return;
@@ -98,8 +114,10 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
             white_pieces_->insert({white_piece, std::make_shared<Queen>(white_piece, WHITE)});
             black_pieces_->insert({black_piece, std::make_shared<Queen>(black_piece, BLACK)});
         } else {
-            white_pieces_->insert({white_piece, std::make_shared<King>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_shared<King>(black_piece, BLACK)});
+            white_king_ = std::make_shared<King>(white_piece, WHITE);
+            black_king_ = std::make_shared<King>(black_piece, BLACK);
+            white_pieces_->insert({white_piece, white_king_});
+            black_pieces_->insert({black_piece, black_king_});
         }
     }
 
