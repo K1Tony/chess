@@ -23,6 +23,8 @@ private:
 
     void set_available_moves();
 
+    void set_available_moves(PieceColor color);
+
     bool scan_checks();
 
     void trim_legal_moves();

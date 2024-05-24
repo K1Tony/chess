@@ -3,7 +3,7 @@
 bool Chessboard::is_attacked(const Position &position)
 {
     std::unique_ptr< std::map< Position, std::shared_ptr<Piece> > > &attacking_pieces =
-        turn_ == WHITE ? black_pieces_ : black_pieces_;
+        turn_ == WHITE ? black_pieces_ : white_pieces_;
 
     for (auto &pair : *attacking_pieces) {
         std::vector<Position> moves = pair.second->legal_moves();
@@ -17,11 +17,20 @@ bool Chessboard::is_attacked(const Position &position)
 void Chessboard::set_available_moves()
 {
     for (auto &pair : *white_pieces_) {
-        pair.second->legal_moves().clear();
+        pair.second->__legal_moves().clear();
         pair.second->available_moves(white_pieces_, black_pieces_);
     }
     for (auto &pair : *black_pieces_) {
-        pair.second->legal_moves().clear();
+        pair.second->__legal_moves().clear();
+        pair.second->available_moves(white_pieces_, black_pieces_);
+    }
+}
+
+void Chessboard::set_available_moves(PieceColor color)
+{
+    auto &pieces = color == WHITE ? white_pieces_ : black_pieces_;
+    for (auto &pair : *pieces) {
+        pair.second->__legal_moves().clear();
         pair.second->available_moves(white_pieces_, black_pieces_);
     }
 }
@@ -36,10 +45,37 @@ void Chessboard::trim_legal_moves()
 {
     auto &pieces = turn_ == WHITE ? white_pieces_ : black_pieces_;
     auto &enemies = turn_ == WHITE ? black_pieces_ : white_pieces_;
+    std::map< Position, std::shared_ptr<Piece> > piece_copy(*pieces);
+    PieceColor opposite = turn_ == WHITE ? BLACK : WHITE;
 
-    for (auto &pair : *pieces) {
-
+    for (auto &pair : piece_copy) {
+        pieces->erase(pair.first);
+        std::vector<Position> moves;
+        moves.reserve(28);
+        for (Position &p : pair.second->legal_moves()) {
+            bool take = false;
+            pair.second->set_position(p);
+            pieces->insert({p, pair.second});
+            std::shared_ptr<Piece> enemy;
+            if (enemies->count(p) > 0) {
+                enemy = enemies->at(p);
+                enemies->erase(p);
+                take = true;
+            }
+            set_available_moves(opposite);
+            if (!scan_checks())
+                moves.push_back(p);
+            pieces->erase(p);
+            if (take) {
+                enemies->insert({p, enemy});
+            }
+        }
+        pair.second->set_position(pair.first);
+        pair.second->__set_legal_moves(moves);
+        pieces->insert(pair);
+        set_available_moves(opposite);
     }
+
 }
 
 void Chessboard::check_castling(SpecialMoveTag castling_style, PieceColor color)
@@ -51,6 +87,7 @@ void Chessboard::check_castling(SpecialMoveTag castling_style, PieceColor color)
     if (piece_at(rook_pos)->moved()) return;
     int begin_iteration = castling_style == LONG_CASTLING ? B : F;
     int end_iteration = castling_style == LONG_CASTLING ? E : H;
+    if (scan_checks() || is_attacked(rook_pos)) return;
 
     for (; begin_iteration < end_iteration; begin_iteration++) {
         Position p(begin_iteration, rank);
@@ -65,7 +102,7 @@ void Chessboard::check_castling(SpecialMoveTag castling_style, PieceColor color)
 void Chessboard::castle(SpecialMoveTag castling_style, PieceColor color)
 {
     Position rook_initial(castling_style == LONG_CASTLING ? A : H, color == WHITE ? 1 : 8),
-        rook_destination(castling_style == LONG_CASTLING ? C : F, color == WHITE ? 1 : 8);
+        rook_destination(castling_style == LONG_CASTLING ? D : F, color == WHITE ? 1 : 8);
     at(rook_destination)->setPixmap(at(rook_initial)->pixmap());
     at(rook_initial)->setPixmap(blank());
     std::unique_ptr< std::map< Position, std::shared_ptr<Piece> > > &pieces =
@@ -172,14 +209,25 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     std::shared_ptr<Piece> &piece = color == WHITE ? white_pieces_->at(position) : black_pieces_->at(position);
     selected_piece_ = piece;
     highlighted_moves_ = piece->legal_moves();
+    auto &pieces = turn_ == WHITE ? white_pieces_ : black_pieces_;
 
     // Check for en passant
     if (last_move_.moved_piece_.get() != nullptr && piece->tag() == PAWN &&
         Pawn::check_en_passant(last_move_, piece)) {
         int available_rank = piece->color() == WHITE ? 6 : 3;
-        Position pos(last_move_.old_.file_, available_rank);
-        special_moves_.insert({EN_PASSANT, pos});
-        highlighted_moves_.push_back(pos);
+        Position pos(last_move_.old_.file_, available_rank), initial = piece->position();
+        piece->set_position(pos);
+        pieces->erase(initial);
+        pieces->insert({pos, piece});
+        set_available_moves((PieceColor) ((turn_ + 1) % 2));
+        if (!scan_checks()){
+            special_moves_.insert({EN_PASSANT, pos});
+            highlighted_moves_.push_back(pos);
+        }
+        piece->set_position(initial);
+        pieces->erase(pos);
+        pieces->insert({initial, piece});
+        set_available_moves((PieceColor) ((turn_ + 1) % 2));
     }
 
     // Check for castling
@@ -245,8 +293,8 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     }
     piece->set_position(destination);
     special_moves_.clear();
-    // position, shared ptr to piece pair
     set_available_moves();
+    trim_legal_moves();
 }
 
 void Chessboard::move(const Position destination)
