@@ -24,7 +24,11 @@ public:
 
     [[nodiscard]] bool moved() const {return moved_;}
 
-    [[nodiscard]] std::vector<Position> &legal_moves() {return legal_moves_;}
+    [[nodiscard]] std::vector<Position> legal_moves() const {return legal_moves_;}
+
+    [[nodiscard]] std::vector<Position> &__legal_moves() {return legal_moves_;}
+
+    void __set_legal_moves(std::vector<Position> &moves) {legal_moves_ = moves;}
 
     void set_color(int color) {color_ = (PieceColor) color;}
 
