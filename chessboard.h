@@ -10,6 +10,8 @@
 #include <queen.h>
 #include <king.h>
 
+#include <promotiondialog.h>
+
 
 class Chessboard
 {
@@ -21,13 +23,9 @@ private:
 
     bool is_attacked(const Position &position);
 
-    void set_available_moves();
+    void list_promotions();
 
-    void set_available_moves(PieceColor color);
-
-    bool scan_checks();
-
-    void trim_legal_moves();
+    void promote(PieceTag tag);
 
 // public methods
 public:
@@ -57,6 +55,8 @@ public:
 
     [[nodiscard]] std::map<SpecialMoveTag, Position> &special_moves() {return special_moves_;}
 
+    [[nodiscard]] std::unique_ptr<PromotionDialog> &promotion_dialog() {return promotion_dialog_;}
+
     void reset_move_highlights();
 
     void select_piece(Position &position, PieceColor color);
@@ -67,13 +67,29 @@ public:
 
     std::shared_ptr<Piece> piece_at(const Position &position);
 
+    bool check_promotion();
+
+    void set_available_moves();
+
+    void set_available_moves(PieceColor color);
+
+    bool scan_checks();
+
+    void trim_legal_moves();
+
 // private members
 private:
+    std::unique_ptr<QWidget> parent_;
+
+    std::unique_ptr<QGridLayout> layout_;
+
     std::array< std::array< std::unique_ptr<Square>, 8>, 8 > squares_;
 
     std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > white_pieces_, black_pieces_;
 
     std::shared_ptr<Piece> white_king_, black_king_;
+
+    std::unique_ptr<PromotionDialog> promotion_dialog_;
 
     PieceColor turn_ = WHITE;
 

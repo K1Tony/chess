@@ -12,6 +12,7 @@
 
 #include <QPushButton>
 #include <qlabel.h>
+#include <QScreen>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,13 +25,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Chessboard init
     chessboard_.reset(new Chessboard(square_length, ui->gridLayout, ui->centralwidget));
-
-    setFixedSize(width(), square_length * 9);
+    for (int i = 0; i < 9; i++) {
+        ui->gridLayout->setColumnMinimumWidth(i, square_length);
+    }
+    for (int i = 0; i < 12; i++) {
+        ui->gridLayout->setRowMinimumHeight(i, square_length);
+    }
+    // setFixedSize(width(), square_length * 11);
 
     for (int rank = 1; rank <= 8; rank++) {
         for (int file = 0; file < 8; file++) {
             connect(chessboard_->at(file, rank).get(), &Square::clicked, this, [this, file, rank] () {
                 Position pos(file, rank);
+                if (this->promoting_ && this->chessboard_->selected_piece()->tag() == PAWN) {
+                    return;
+                } else if (this->promoting_){
+                    this->promoting_ = false;
+                    this->chessboard_->reset_move_highlights();
+                }
                 if (this->chessboard_->turn() == WHITE &&
                     this->chessboard_->white_pieces()->count(pos) > 0) {
 
@@ -44,8 +56,36 @@ MainWindow::MainWindow(QWidget *parent)
                 } else if (this->chessboard_->selected_piece().get() != nullptr &&
                            this->chessboard_->at(pos)->is_highlighted()){
 
+                    auto &piece = this->chessboard_->selected_piece();
+
                     this->chessboard_->move(pos);
-                    this->chessboard_->reset_move_highlights();
+
+                    if (this->chessboard_->check_promotion()) {
+                        this->promoting_ = true;
+                        this->chessboard_->promotion_dialog()->init_promotions(piece->position(), piece);
+                        this->chessboard_->promotion_dialog()->list_promotions(piece->position(), ui->gridLayout);
+
+                        auto &pieces = piece->color() == WHITE ? this->chessboard_->white_pieces() : this->chessboard_->black_pieces();
+
+                        for (auto &pair : this->chessboard_->promotion_dialog()->squares()) {
+                            PieceTag tag = pair.first;
+                            pair.second->connect(pair.second.get(), &Square::clicked, this, [this, tag, &pieces, &piece] () {
+                                Position p(piece->position());
+                                pieces->erase(p);
+                                pieces->insert({p, this->chessboard_->promotion_dialog()->pieces().at(tag)});
+                                this->chessboard_->at(p)->setPixmap(*pieces->at(p)->pixmap());
+
+                                this->chessboard_->promotion_dialog()->collapse();
+                                this->chessboard_->trim_legal_moves();
+
+                                this->promoting_ = false;
+                                this->chessboard_->reset_move_highlights();
+                            });
+                        }
+                    }
+                    else {
+                        this->chessboard_->reset_move_highlights();
+                    }
 
                 } else {
 
