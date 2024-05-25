@@ -210,30 +210,29 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
 
     white_pieces_.reset(new std::map<Position, std::shared_ptr<Piece> >);
     black_pieces_.reset(new std::map<Position, std::shared_ptr<Piece> >);
-    black_pieces_->insert({Position(F, 2), std::make_shared<Pawn>(Position(F, 2), BLACK)});
-    turn_ = BLACK;
+
     for (int i = 0; i < 8; i++) {
-        // Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
-        // white_pieces_->insert({white_pawn, std::make_shared<Pawn>(white_pawn, WHITE)});
-        // black_pieces_->insert({black_pawn, std::make_shared<Pawn>(black_pawn, BLACK)});
-        // if (i == A || i == H) {
-        //     white_pieces_->insert({white_piece, std::make_shared<Rook>(white_piece, WHITE)});
-        //     black_pieces_->insert({black_piece, std::make_shared<Rook>(black_piece, BLACK)});
-        // } else if (i == B || i == G) {
-        //     white_pieces_->insert({white_piece, std::make_shared<Knight>(white_piece, WHITE)});
-        //     black_pieces_->insert({black_piece, std::make_shared<Knight>(black_piece, BLACK)});
-        // } else if (i == C || i == F) {
-        //     white_pieces_->insert({white_piece, std::make_shared<Bishop>(white_piece, WHITE)});
-        //     black_pieces_->insert({black_piece, std::make_shared<Bishop>(black_piece, BLACK)});
-        // } else if (i == D) {
-        //     white_pieces_->insert({white_piece, std::make_shared<Queen>(white_piece, WHITE)});
-        //     black_pieces_->insert({black_piece, std::make_shared<Queen>(black_piece, BLACK)});
-        // } else {
-        //     white_king_ = std::make_shared<King>(white_piece, WHITE);
-        //     black_king_ = std::make_shared<King>(black_piece, BLACK);
-        //     white_pieces_->insert({white_piece, white_king_});
-        //     black_pieces_->insert({black_piece, black_king_});
-        // }
+        Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
+        white_pieces_->insert({white_pawn, std::make_shared<Pawn>(white_pawn, WHITE)});
+        black_pieces_->insert({black_pawn, std::make_shared<Pawn>(black_pawn, BLACK)});
+        if (i == A || i == H) {
+            white_pieces_->insert({white_piece, std::make_shared<Rook>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Rook>(black_piece, BLACK)});
+        } else if (i == B || i == G) {
+            white_pieces_->insert({white_piece, std::make_shared<Knight>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Knight>(black_piece, BLACK)});
+        } else if (i == C || i == F) {
+            white_pieces_->insert({white_piece, std::make_shared<Bishop>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Bishop>(black_piece, BLACK)});
+        } else if (i == D) {
+            white_pieces_->insert({white_piece, std::make_shared<Queen>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Queen>(black_piece, BLACK)});
+        } else {
+            white_king_ = std::make_shared<King>(white_piece, WHITE);
+            black_king_ = std::make_shared<King>(black_piece, BLACK);
+            white_pieces_->insert({white_piece, white_king_});
+            black_pieces_->insert({black_piece, black_king_});
+        }
     }
 
     for (auto &pair : *white_pieces_) {
@@ -351,10 +350,10 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
         } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
             castle(LONG_CASTLING, WHITE);
         }
-        if (check_promotion()) {
-            promotion_dialog_->init_promotions(piece->position());
-            promotion_dialog_->list_promotions(piece->position(), layout_.get());
-        }
+        // if (check_promotion()) {
+        //     promotion_dialog_->init_promotions(piece->position(), piece);
+        //     promotion_dialog_->list_promotions(piece->position(), layout_.get());
+        // }
         turn_ = BLACK;
     } else {
         at(piece->position())->setPixmap(blank_);
@@ -373,10 +372,10 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
         } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
             castle(LONG_CASTLING, BLACK);
         }
-        if (check_promotion()) {
-            promotion_dialog_->init_promotions(piece->position());
-            promotion_dialog_->list_promotions(piece->position(), layout_.get());
-        }
+        // if (check_promotion()) {
+        //     promotion_dialog_->init_promotions(piece->position(), piece);
+        //     promotion_dialog_->list_promotions(piece->position(), layout_.get());
+        // }
         turn_ = WHITE;
     }
     piece->set_position(destination);

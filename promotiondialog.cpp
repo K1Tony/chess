@@ -14,8 +14,10 @@ PromotionDialog::PromotionDialog(QWidget *parent) {
     }
 }
 
-void PromotionDialog::init_promotions(const Position &promotion_square)
+void PromotionDialog::init_promotions(const Position &promotion_square, std::shared_ptr<Piece> &pawn)
 {
+    pawn_ = pawn;
+
     PieceColor color;
     switch (promotion_square.rank_) {
     case 1:
@@ -27,14 +29,15 @@ void PromotionDialog::init_promotions(const Position &promotion_square)
     default:
         return;
     }
-    pieces_.insert({QUEEN, std::make_unique<Queen>(promotion_square, color)});
-    pieces_.insert({ROOK, std::make_unique<Rook>(promotion_square, color)});
-    pieces_.insert({BISHOP, std::make_unique<Bishop>(promotion_square, color)});
-    pieces_.insert({KNIGHT, std::make_unique<Knight>(promotion_square, color)});
+    pieces_.insert({QUEEN, std::make_shared<Queen>(promotion_square, color)});
+    pieces_.insert({ROOK, std::make_shared<Rook>(promotion_square, color)});
+    pieces_.insert({BISHOP, std::make_shared<Bishop>(promotion_square, color)});
+    pieces_.insert({KNIGHT, std::make_shared<Knight>(promotion_square, color)});
 
     for (auto &pair : pieces_) {
-        squares_.at(pair.first)->setPixmap(*pair.second->pixmap());
-        squares_.at(pair.first)->setStyleSheet("QLabel {background-color : cyan}");
+        PieceTag tag = pair.first;
+        squares_.at(tag)->setPixmap(*pair.second->pixmap());
+        squares_.at(tag)->setStyleSheet("QLabel {background-color : cyan}");
     }
 }
 
@@ -58,3 +61,21 @@ void PromotionDialog::list_promotions(const Position &promotion_square, QGridLay
     layout->addWidget(squares_.at(BISHOP).get(), rank + offset, file - 1);
     layout->addWidget(squares_.at(KNIGHT).get(), rank + offset, file + 1);
 }
+
+void PromotionDialog::collapse()
+{
+    pieces_.clear();
+    QWidget *parent = squares_.at(QUEEN)->parentWidget();
+    int square_size = squares_.at(QUEEN)->width();
+    squares_.clear();
+    for (int i = 1; i <= 4; i++) {
+        squares_.insert({(PieceTag) i, std::make_unique<Square>(parent)});
+        squares_.at((PieceTag) i)->setAutoFillBackground(true);
+        squares_.at((PieceTag) i)->setScaledContents(true);
+    }
+    for (auto &pair : squares_) {
+        pair.second->setMinimumSize(square_size, square_size);
+        pair.second->setMaximumSize(square_size, square_size);
+    }
+}
+

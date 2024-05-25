@@ -23,16 +23,6 @@ private:
 
     bool is_attacked(const Position &position);
 
-    void set_available_moves();
-
-    void set_available_moves(PieceColor color);
-
-    bool scan_checks();
-
-    void trim_legal_moves();
-
-    bool check_promotion();
-
     void list_promotions();
 
     void promote(PieceTag tag);
@@ -65,6 +55,8 @@ public:
 
     [[nodiscard]] std::map<SpecialMoveTag, Position> &special_moves() {return special_moves_;}
 
+    [[nodiscard]] std::unique_ptr<PromotionDialog> &promotion_dialog() {return promotion_dialog_;}
+
     void reset_move_highlights();
 
     void select_piece(Position &position, PieceColor color);
@@ -74,6 +66,16 @@ public:
     void move(const Position destination);
 
     std::shared_ptr<Piece> piece_at(const Position &position);
+
+    bool check_promotion();
+
+    void set_available_moves();
+
+    void set_available_moves(PieceColor color);
+
+    bool scan_checks();
+
+    void trim_legal_moves();
 
 // private members
 private:
