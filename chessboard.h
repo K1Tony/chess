@@ -10,6 +10,8 @@
 #include <queen.h>
 #include <king.h>
 
+#include <promotiondialog.h>
+
 
 class Chessboard
 {
@@ -84,6 +86,8 @@ private:
     std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > white_pieces_, black_pieces_;
 
     std::shared_ptr<Piece> white_king_, black_king_;
+
+    std::unique_ptr<PromotionDialog> promotion_dialog_;
 
     PieceColor turn_ = WHITE;
 

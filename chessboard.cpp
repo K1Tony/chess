@@ -184,6 +184,12 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
     parent_.reset(parent);
     layout_.reset(layout);
 
+    promotion_dialog_.reset(new PromotionDialog(parent));
+    for (auto &pair : promotion_dialog_->squares()) {
+        pair.second->setMinimumSize(square_size, square_size);
+        pair.second->setMaximumSize(square_size, square_size);
+    }
+
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
             auto *square = new Square(parent);
@@ -204,7 +210,8 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
 
     white_pieces_.reset(new std::map<Position, std::shared_ptr<Piece> >);
     black_pieces_.reset(new std::map<Position, std::shared_ptr<Piece> >);
-    white_pieces_->insert({Position(F, 7), std::make_shared<Pawn>(Position(F, 7), WHITE)});
+    black_pieces_->insert({Position(F, 2), std::make_shared<Pawn>(Position(F, 2), BLACK)});
+    turn_ = BLACK;
     for (int i = 0; i < 8; i++) {
         // Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
         // white_pieces_->insert({white_pawn, std::make_shared<Pawn>(white_pawn, WHITE)});
@@ -345,7 +352,8 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
             castle(LONG_CASTLING, WHITE);
         }
         if (check_promotion()) {
-            list_promotions();
+            promotion_dialog_->init_promotions(piece->position());
+            promotion_dialog_->list_promotions(piece->position(), layout_.get());
         }
         turn_ = BLACK;
     } else {
@@ -353,6 +361,7 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
         at(destination)->setPixmap(*piece->pixmap());
         black_pieces_->erase(piece->position());
         black_pieces_->insert({destination, piece});
+        piece->set_position(destination);
         if (white_pieces_->count(destination) > 0) {
             white_pieces_->erase(destination);
         } else if (special_moves_.count(EN_PASSANT) > 0 && destination == special_moves_.at(EN_PASSANT)) {
@@ -363,6 +372,10 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
             castle(SHORT_CASTLING, BLACK);
         } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
             castle(LONG_CASTLING, BLACK);
+        }
+        if (check_promotion()) {
+            promotion_dialog_->init_promotions(piece->position());
+            promotion_dialog_->list_promotions(piece->position(), layout_.get());
         }
         turn_ = WHITE;
     }
