@@ -18,6 +18,11 @@ void Square::mousePressEvent(QMouseEvent *event)
     emit clicked();
 }
 
+void Square::enterEvent(QEnterEvent *event)
+{
+    emit hovered();
+}
+
 void Square::highlight(const QString &color)
 {
     QString style = "QLabel {background-color : ";

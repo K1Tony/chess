@@ -39,9 +39,13 @@ signals:
 
     void clicked();
 
+    void hovered();
+
 protected:
 
     void mousePressEvent(QMouseEvent *event);
+
+    void enterEvent(QEnterEvent *event);
 
 public slots:
 

@@ -1,6 +1,8 @@
 #ifndef CHESSBOARD_H
 #define CHESSBOARD_H
 
+#include "movedialog.h"
+
 #include <Square.h>
 #include <QGridLayout>
 #include <pawn.h>
@@ -49,6 +51,8 @@ public:
 
     [[nodiscard]] PieceColor turn() {return turn_;}
 
+    void __set_turn(PieceColor __turn) {turn_ = __turn;}
+
     [[nodiscard]] LastMove last_move() const {return last_move_;}
 
     [[nodiscard]] QPixmap &blank() {return blank_;}
@@ -76,6 +80,8 @@ public:
     bool scan_checks();
 
     void trim_legal_moves();
+
+    void register_move(Move &move);
 
 // private members
 private:
@@ -105,6 +111,8 @@ private:
     LastMove last_move_;
 
     std::map<SpecialMoveTag, Position> special_moves_;
+
+    int legal_moves_count_;
 };
 
 #endif // CHESSBOARD_H

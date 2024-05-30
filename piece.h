@@ -28,6 +28,8 @@ public:
 
     [[nodiscard]] std::vector<Position> &__legal_moves() {return legal_moves_;}
 
+    [[nodiscard]] QChar code() const {return code_;}
+
     void __set_legal_moves(std::vector<Position> &moves) {legal_moves_ = moves;}
 
     void set_color(int color) {color_ = (PieceColor) color;}
@@ -57,6 +59,8 @@ protected:
     bool moved_ = false;
 
     std::vector<Position> legal_moves_;
+
+    QChar code_;
 
 };
 

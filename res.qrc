@@ -12,5 +12,6 @@
         <file>resources/white-pawn.png</file>
         <file>resources/white-queen.png</file>
         <file>resources/white-rook.png</file>
+        <file>resources/background.jpg</file>
     </qresource>
 </RCC>

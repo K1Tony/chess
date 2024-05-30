@@ -63,8 +63,10 @@ void Chessboard::trim_legal_moves()
                 take = true;
             }
             set_available_moves(opposite);
-            if (!scan_checks())
+            if (!scan_checks()){
                 moves.push_back(p);
+                legal_moves_count_++;
+            }
             pieces->erase(p);
             if (take) {
                 enemies->insert({p, enemy});
@@ -84,66 +86,6 @@ bool Chessboard::check_promotion()
             (selected_piece_->position().rank_ == 1 || selected_piece_->position().rank_ == 8));
 }
 
-void Chessboard::list_promotions()
-{
-    int aux_rank = selected_piece_->color() == WHITE ? 10 : 1,
-        last_rank = turn_ == WHITE ? 8 : 1;
-    auto queen_square = std::make_unique<Square>(parent_.get()),
-        rook_square = std::make_unique<Square>(parent_.get()),
-        bishop_square = std::make_unique<Square>(parent_.get()),
-        knight_square = std::make_unique<Square>(parent_.get());
-
-    int file = selected_piece_->position().file_;
-    Position pos(selected_piece_->position());
-    std::shared_ptr<Piece> queen = std::make_unique<Queen>(pos, turn_),
-        rook = std::make_unique<Rook>(pos, turn_),
-        bishop = std::make_unique<Bishop>(pos, turn_),
-        knight = std::make_unique<Knight>(pos, turn_);
-
-    // In constructor: layout->addWidget(square, 9 - i, j + 1);
-    layout_->addWidget(queen_square.get(), aux_rank, file + 1);
-    layout_->addWidget(rook_square.get(), aux_rank + (turn_ == WHITE ? 1 : -1), file + 1);
-    layout_->addWidget(bishop_square.get(), aux_rank, file);
-    layout_->addWidget(knight_square.get(), aux_rank, file + 2);
-
-    queen_square->connect(queen_square.get(), &Square::clicked, squares_[last_rank][file].get(), [=, &queen] () {
-        this->squares_[last_rank][file]->setPixmap(*queen->pixmap());
-        auto &pieces = this->turn_ == WHITE ? this->white_pieces_ : this->black_pieces_;
-        pieces->erase(this->selected_piece_->position());
-        pieces->insert({pos, queen});
-        this->selected_piece_ = queen;
-    });
-    rook_square->connect(rook_square.get(), &Square::clicked, squares_[last_rank][file].get(), [=, &rook] () {
-        this->squares_[last_rank][file]->setPixmap(*rook->pixmap());
-        auto &pieces = this->turn_ == WHITE ? this->white_pieces_ : this->black_pieces_;
-        pieces->erase(this->selected_piece_->position());
-        pieces->insert({pos, rook});
-        this->selected_piece_ = rook;
-    });
-    bishop_square->connect(bishop_square.get(), &Square::clicked, squares_[last_rank][file].get(), [=, &bishop] () {
-        this->squares_[last_rank][file]->setPixmap(*bishop->pixmap());
-        auto &pieces = this->turn_ == WHITE ? this->white_pieces_ : this->black_pieces_;
-        pieces->erase(this->selected_piece_->position());
-        pieces->insert({pos, bishop});
-        this->selected_piece_ = bishop;
-    });
-    knight_square->connect(knight_square.get(), &Square::clicked, squares_[last_rank][file].get(), [=, &knight] () {
-        this->squares_[last_rank][file]->setPixmap(*knight->pixmap());
-        auto &pieces = this->turn_ == WHITE ? this->white_pieces_ : this->black_pieces_;
-        pieces->erase(this->selected_piece_->position());
-        pieces->insert({pos, knight});
-        this->selected_piece_ = knight;
-    });
-    int ITER = 0;
-    while (selected_piece_->tag() == PAWN && ITER < 100000) {
-        ITER++;
-    }
-
-    layout_->removeWidget(queen_square.get());
-    layout_->removeWidget(rook_square.get());
-    layout_->removeWidget(bishop_square.get());
-    layout_->removeWidget(knight_square.get());
-}
 
 void Chessboard::check_castling(SpecialMoveTag castling_style, PieceColor color)
 {
@@ -184,7 +126,7 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
     parent_.reset(parent);
     layout_.reset(layout);
 
-    promotion_dialog_.reset(new PromotionDialog(parent));
+    promotion_dialog_.reset(new PromotionDialog());
     for (auto &pair : promotion_dialog_->squares()) {
         pair.second->setMinimumSize(square_size, square_size);
         pair.second->setMaximumSize(square_size, square_size);
