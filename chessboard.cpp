@@ -45,8 +45,11 @@ void Chessboard::trim_legal_moves()
 {
     auto &pieces = turn_ == WHITE ? white_pieces_ : black_pieces_;
     auto &enemies = turn_ == WHITE ? black_pieces_ : white_pieces_;
+
+    // COPY MUST STAY!
     std::map< Position, std::shared_ptr<Piece> > piece_copy(*pieces);
     PieceColor opposite = turn_ == WHITE ? BLACK : WHITE;
+    legal_moves_count_ = 0;
 
     for (auto &pair : piece_copy) {
         pieces->erase(pair.first);
@@ -80,6 +83,39 @@ void Chessboard::trim_legal_moves()
 
 }
 
+void Chessboard::check_for_mate()
+{
+    mate_property_->setValue(scan_checks() && legal_moves_count_ == 0);
+}
+
+void Chessboard::check_for_draw()
+{
+    if (legal_moves_count_ == 0 && !scan_checks()) {
+        draw_property_->setValue(true);
+        return;
+    }
+    typedef std::unique_ptr< std::map< Position, std::shared_ptr<Piece> > > piece_map;
+
+    auto check = [] (piece_map &pieces) -> bool {
+
+        int bishop_count = 0;
+        for (auto &pair : *pieces) {
+            PieceTag tag = pair.second->tag();
+            if (tag == PAWN || tag == QUEEN || tag == ROOK)
+                return false;
+            if (tag == BISHOP) {
+                bishop_count++;
+            } else if (tag == KNIGHT && bishop_count >= 1) {
+                return false;
+            }
+        }
+        return bishop_count == 1;
+    };
+
+    piece_map &white = white_pieces_, &black = black_pieces_;
+    draw_property_->setValue(check(white) && check(black));
+}
+
 ChessboardColorDialog Chessboard::color_dialog() const
 {
     return color_dialog_;
@@ -88,6 +124,16 @@ ChessboardColorDialog Chessboard::color_dialog() const
 int Chessboard::moves_count() const
 {
     return moves_count_;
+}
+
+std::shared_ptr<QProperty<bool> > Chessboard::mate_property() const
+{
+    return mate_property_;
+}
+
+std::shared_ptr<QProperty<bool> > Chessboard::draw_property() const
+{
+    return draw_property_;
 }
 
 bool Chessboard::check_promotion()
@@ -103,7 +149,8 @@ void Chessboard::check_castling(SpecialMoveTag castling_style, PieceColor color)
     int rank = color == WHITE ? 1 : 8;
     File file = castling_style == LONG_CASTLING ? C : G;
     Position rook_pos(castling_style == LONG_CASTLING ? A : H, rank);
-    if (piece_at(rook_pos)->moved()) return;
+    std::shared_ptr<Piece> rook = piece_at(rook_pos);
+    if (rook.get() == nullptr || rook->tag() != ROOK || rook->color() != color || rook->moved()) return;
     int begin_iteration = castling_style == LONG_CASTLING ? B : F;
     int end_iteration = castling_style == LONG_CASTLING ? E : H;
     if (scan_checks() || is_attacked(rook_pos)) return;
@@ -137,6 +184,10 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
     layout_.reset(layout);
 
     promotion_dialog_.reset(new PromotionDialog());
+
+    mate_property_.reset(new QProperty<bool>());
+    draw_property_.reset(new QProperty<bool>());
+
     for (auto &pair : promotion_dialog_->squares()) {
         pair.second->setMinimumSize(square_size, square_size);
         pair.second->setMaximumSize(square_size, square_size);
@@ -165,17 +216,17 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
 
     for (int i = 0; i < 8; i++) {
         Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
-        white_pieces_->insert({white_pawn, std::make_shared<Pawn>(white_pawn, WHITE)});
-        black_pieces_->insert({black_pawn, std::make_shared<Pawn>(black_pawn, BLACK)});
+        // white_pieces_->insert({white_pawn, std::make_shared<Pawn>(white_pawn, WHITE)});
+        // black_pieces_->insert({black_pawn, std::make_shared<Pawn>(black_pawn, BLACK)});
         if (i == A || i == H) {
-            white_pieces_->insert({white_piece, std::make_shared<Rook>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_shared<Rook>(black_piece, BLACK)});
+            // white_pieces_->insert({white_piece, std::make_shared<Rook>(white_piece, WHITE)});
+            // black_pieces_->insert({black_piece, std::make_shared<Rook>(black_piece, BLACK)});
         } else if (i == B || i == G) {
-            white_pieces_->insert({white_piece, std::make_shared<Knight>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_shared<Knight>(black_piece, BLACK)});
+            // white_pieces_->insert({white_piece, std::make_shared<Knight>(white_piece, WHITE)});
+            // black_pieces_->insert({black_piece, std::make_shared<Knight>(black_piece, BLACK)});
         } else if (i == C || i == F) {
-            white_pieces_->insert({white_piece, std::make_shared<Bishop>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_shared<Bishop>(black_piece, BLACK)});
+            // white_pieces_->insert({white_piece, std::make_shared<Bishop>(white_piece, WHITE)});
+            // black_pieces_->insert({black_piece, std::make_shared<Bishop>(black_piece, BLACK)});
         } else if (i == D) {
             white_pieces_->insert({white_piece, std::make_shared<Queen>(white_piece, WHITE)});
             black_pieces_->insert({black_piece, std::make_shared<Queen>(black_piece, BLACK)});

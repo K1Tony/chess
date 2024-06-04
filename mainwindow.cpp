@@ -33,6 +33,15 @@ MainWindow::MainWindow(QWidget *parent)
     }
     // setFixedSize(width(), square_length * 11);
 
+    mate_notifier_ = chessboard_->mate_property()->addNotifier([this] () {
+        this->ui->label->setText(this->chessboard_->turn() == WHITE ? "Black wins!" : "White wins!");
+        qDebug() << this->ui->label->text();
+    });
+    draw_notifier_ = chessboard_->draw_property()->addNotifier([this] () {
+        this->ui->label->setText("It's a draw!");
+        qDebug() << this->ui->label->text();
+    });
+
     for (int rank = 1; rank <= 8; rank++) {
         for (int file = 0; file < 8; file++) {
             connect(chessboard_->at(file, rank).get(), &Square::hovered, this, [this, file, rank] () {
@@ -94,12 +103,18 @@ MainWindow::MainWindow(QWidget *parent)
 
                                 this->promoting_ = false;
                                 this->chessboard_->reset_move_highlights();
+
+                                this->chessboard_->check_for_mate();
+                                this->chessboard_->check_for_draw();
                             });
                         }
                         this->chessboard_->reset_move_highlights();
                     }
                     else {
                         this->chessboard_->reset_move_highlights();
+                        this->chessboard_->check_for_mate();
+                        qDebug() << this->chessboard_->mate_property()->value();
+                        this->chessboard_->check_for_draw();
                     }
                     this->chessboard_->at(piece->position())->setCursor(Qt::ArrowCursor);
 

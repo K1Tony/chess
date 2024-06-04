@@ -27,6 +27,8 @@ private:
 
     bool promoting_;
 
+    QPropertyNotifier mate_notifier_, draw_notifier_;
+
     // MoveDialog move_dialog_;
 };
 #endif // MAINWINDOW_H

@@ -85,10 +85,18 @@ public:
 
     void register_move(Move &move);
 
+    void check_for_mate();
+
+    void check_for_draw();
+
 // private members
     ChessboardColorDialog color_dialog() const;
 
     int moves_count() const;
+
+    std::shared_ptr<QProperty<bool> > mate_property() const;
+
+    std::shared_ptr<QProperty<bool> > draw_property() const;
 
 private:
     std::unique_ptr<QWidget> parent_;
@@ -109,9 +117,6 @@ private:
 
     std::vector<Position> highlighted_moves_;
 
-    QString base_light_color_ = "QLabel {background-color : #FFEED4}",
-        base_dark_color_ = "QLabel {background-color : #B56F07}";
-
     QPixmap blank_ = QPixmap();
 
     Move last_move_;
@@ -123,6 +128,10 @@ private:
     int moves_count_ = 0;
 
     ChessboardColorDialog color_dialog_;
+
+    std::shared_ptr< QProperty<bool> > mate_property_;
+
+    std::shared_ptr< QProperty<bool> > draw_property_;
 };
 
 #endif // CHESSBOARD_H
