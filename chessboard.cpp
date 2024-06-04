@@ -221,15 +221,15 @@ std::unique_ptr<Square> &Chessboard::at(const Position &position)
 void Chessboard::reset_move_highlights()
 {
     for (Position &p : highlighted_moves_) {
-        if (last_move_.old_ == p || last_move_.new_ == p) {
-
-        }
-        else if ((p.rank_ + p.file_) % 2 == 1) {
-            at(p)->set_background_color(color_dialog_.dark_square());
-        } else {
-            at(p)->set_background_color(color_dialog_.light_square());
-        }
         at(p)->set_highlight(false);
+        MColor color = (p.file_ + p.rank_) % 2 == 0 ? color_dialog_.light_square() : color_dialog_.dark_square();
+
+        if (last_move_.old_ == p || last_move_.new_ == p) {
+            at(p)->set_background_color(color + color_dialog_.last_move());
+        }
+        else {
+            at(p)->set_background_color(color);
+        }
         // at(p)->disconnect(at(selected_piece_->position()).get());
     }
     selected_piece_.reset();
@@ -274,7 +274,8 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     // Check for promotions
     // #TODO
     for (auto &p : highlighted_moves_) {
-        at(p)->set_background_color(at(p)->background_color() + color_dialog_.legal_move());
+        MColor color = (p.file_ + p.rank_) % 2 == 0 ? color_dialog_.light_square() : color_dialog_.dark_square();
+        at(p)->set_background_color(color + color_dialog_.legal_move());
         at(p)->set_highlight(true);
         // at(p)->connect(at(p).get(), &Square::clicked, at(p).get(), [this, p] () {
         //     this->move(this->selected_piece(), p);
@@ -296,51 +297,30 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     last_move_.piece_ = piece;
 
     piece->set_moved();
-    if (piece->color() == WHITE) {
-        at(piece->position())->setPixmap(blank_);
-        at(destination)->setPixmap(*piece->pixmap());
-        white_pieces_->erase(piece->position());
-        white_pieces_->insert({destination, piece});
-        piece->set_position(destination);
-        if (black_pieces_->count(destination) > 0) {
-            black_pieces_->erase(destination);
-        } else if (special_moves_.count(EN_PASSANT) > 0 && destination == special_moves_.at(EN_PASSANT)) {
-            Position ep(destination.file_, 5);
-            at(ep)->setPixmap(blank_);
-            black_pieces_->erase(ep);
-        } else if (special_moves_.count(SHORT_CASTLING) > 0 && destination == special_moves_.at(SHORT_CASTLING)) {
-            castle(SHORT_CASTLING, WHITE);
-        } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
-            castle(LONG_CASTLING, WHITE);
-        }
-        // if (check_promotion()) {
-        //     promotion_dialog_->init_promotions(piece->position(), piece);
-        //     promotion_dialog_->list_promotions(piece->position(), layout_.get());
-        // }
-        turn_ = BLACK;
-    } else {
-        at(piece->position())->setPixmap(blank_);
-        at(destination)->setPixmap(*piece->pixmap());
-        black_pieces_->erase(piece->position());
-        black_pieces_->insert({destination, piece});
-        piece->set_position(destination);
-        if (white_pieces_->count(destination) > 0) {
-            white_pieces_->erase(destination);
-        } else if (special_moves_.count(EN_PASSANT) > 0 && destination == special_moves_.at(EN_PASSANT)) {
-            Position ep(destination.file_, 4);
-            at(ep)->setPixmap(blank_);
-            white_pieces_->erase(ep);
-        } else if (special_moves_.count(SHORT_CASTLING) > 0 && destination == special_moves_.at(SHORT_CASTLING)) {
-            castle(SHORT_CASTLING, BLACK);
-        } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
-            castle(LONG_CASTLING, BLACK);
-        }
-        // if (check_promotion()) {
-        //     promotion_dialog_->init_promotions(piece->position(), piece);
-        //     promotion_dialog_->list_promotions(piece->position(), layout_.get());
-        // }
-        turn_ = WHITE;
+
+    auto &ally_pieces = piece->color() == WHITE ? white_pieces_ : black_pieces_;
+    auto &enemy_pieces = piece->color() == WHITE ? black_pieces_ : white_pieces_;
+
+    PieceColor opposite = turn_ % 2 == 0 ? BLACK : WHITE;
+
+    at(piece->position())->setPixmap(blank_);
+    at(destination)->setPixmap(*piece->pixmap());
+    ally_pieces->erase(piece->position());
+    ally_pieces->insert({destination, piece});
+    piece->set_position(destination);
+    if (enemy_pieces->count(destination) > 0) {
+        enemy_pieces->erase(destination);
+    } else if (special_moves_.count(EN_PASSANT) > 0 && destination == special_moves_.at(EN_PASSANT)) {
+        Position ep(destination.file_, 5);
+        at(ep)->setPixmap(blank_);
+        enemy_pieces->erase(ep);
+    } else if (special_moves_.count(SHORT_CASTLING) > 0 && destination == special_moves_.at(SHORT_CASTLING)) {
+        castle(SHORT_CASTLING, turn());
+    } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
+        castle(LONG_CASTLING, turn());
     }
+    turn_ = opposite;
+
     piece->set_position(destination);
     special_moves_.clear();
     set_available_moves();
