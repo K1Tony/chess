@@ -74,10 +74,4 @@ void fill_diagonals(const Position &position,
                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsB,
                     std::vector<Position> &result);
 
-typedef struct LastMove{
-    Position old_;
-    Position new_;
-    std::shared_ptr<Piece> moved_piece_;
-} LastMove;
-
 #endif // PIECE_H

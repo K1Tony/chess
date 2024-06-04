@@ -12,6 +12,8 @@
 #include <queen.h>
 #include <king.h>
 
+#include <colordialog.h>
+
 #include <promotiondialog.h>
 
 
@@ -53,7 +55,7 @@ public:
 
     void __set_turn(PieceColor __turn) {turn_ = __turn;}
 
-    [[nodiscard]] LastMove last_move() const {return last_move_;}
+    [[nodiscard]] Move last_move() const {return last_move_;}
 
     [[nodiscard]] QPixmap &blank() {return blank_;}
 
@@ -84,6 +86,10 @@ public:
     void register_move(Move &move);
 
 // private members
+    ChessboardColorDialog color_dialog() const;
+
+    int moves_count() const;
+
 private:
     std::unique_ptr<QWidget> parent_;
 
@@ -108,11 +114,15 @@ private:
 
     QPixmap blank_ = QPixmap();
 
-    LastMove last_move_;
+    Move last_move_;
 
     std::map<SpecialMoveTag, Position> special_moves_;
 
     int legal_moves_count_;
+
+    int moves_count_ = 0;
+
+    ChessboardColorDialog color_dialog_;
 };
 
 #endif // CHESSBOARD_H

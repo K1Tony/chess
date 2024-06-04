@@ -37,7 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
         for (int file = 0; file < 8; file++) {
             connect(chessboard_->at(file, rank).get(), &Square::hovered, this, [this, file, rank] () {
                 std::shared_ptr<Piece> piece_at = this->chessboard_->piece_at(Position(file, rank));
-                if (piece_at.get() != nullptr && piece_at->color() == this->chessboard_->turn()) {
+                if ((piece_at.get() != nullptr && piece_at->color() == this->chessboard_->turn()) ||
+                    this->chessboard_->at(Position(file, rank))->is_highlighted()) {
                     this->chessboard_->at(file, rank)->setCursor(QCursor(Qt::PointingHandCursor));
                 } else {
                     this->chessboard_->at(file, rank)->setCursor(QCursor(Qt::ArrowCursor));
@@ -55,12 +56,12 @@ MainWindow::MainWindow(QWidget *parent)
                 }
                 if (this->chessboard_->turn() == WHITE &&
                     this->chessboard_->white_pieces()->count(pos) > 0) {
-                    this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
+                    // this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
                     this->chessboard_->select_piece(pos, WHITE);
 
                 } else if (this->chessboard_->turn() == BLACK &&
                            this->chessboard_->black_pieces()->count(pos) > 0) {
-                    this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
+                    // this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
                     this->chessboard_->select_piece(pos, BLACK);
 
                 } else if (this->chessboard_->selected_piece().get() != nullptr &&
@@ -79,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
                         auto &pieces = piece->color() == WHITE ? this->chessboard_->white_pieces() : this->chessboard_->black_pieces();
                         for (auto &pair : this->chessboard_->promotion_dialog()->squares()) {
                             PieceTag tag = pair.first;
+                            pair.second->setCursor(Qt::PointingHandCursor);
                             pair.second->connect(pair.second.get(), &Square::clicked, this, [this, tag, opposite, &pieces, piece] () {
                                 Position p(piece->position());
                                 pieces->erase(p);
@@ -99,9 +101,10 @@ MainWindow::MainWindow(QWidget *parent)
                     else {
                         this->chessboard_->reset_move_highlights();
                     }
+                    this->chessboard_->at(piece->position())->setCursor(Qt::ArrowCursor);
 
                 } else {
-                    this->chessboard_->at(pos)->setCursor(QCursor(Qt::ArrowCursor));
+                    this->chessboard_->at(pos)->setCursor(Qt::ArrowCursor);
                     this->chessboard_->reset_move_highlights();
 
                 }

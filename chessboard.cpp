@@ -80,6 +80,16 @@ void Chessboard::trim_legal_moves()
 
 }
 
+ChessboardColorDialog Chessboard::color_dialog() const
+{
+    return color_dialog_;
+}
+
+int Chessboard::moves_count() const
+{
+    return moves_count_;
+}
+
 bool Chessboard::check_promotion()
 {
     return (selected_piece_->tag() == PAWN &&
@@ -141,9 +151,9 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
             square->setMinimumSize(square_size, square_size);
             square->setMaximumSize(square_size, square_size);
             if ((i + j) % 2 == 0) {
-                square->setStyleSheet(base_dark_color_);
+                square->set_background_color(color_dialog_.dark_square());
             } else {
-                square->setStyleSheet(base_light_color_);
+                square->set_background_color(color_dialog_.light_square());
             }
             squares_[i][j].reset(square);
             layout->addWidget(square, 9 - i, j + 1);
@@ -210,11 +220,14 @@ std::unique_ptr<Square> &Chessboard::at(const Position &position)
 
 void Chessboard::reset_move_highlights()
 {
-    for (auto &p : highlighted_moves_) {
-        if ((p.rank_ + p.file_) % 2 == 1) {
-            at(p)->setStyleSheet(base_dark_color_);
+    for (Position &p : highlighted_moves_) {
+        if (last_move_.old_ == p || last_move_.new_ == p) {
+
+        }
+        else if ((p.rank_ + p.file_) % 2 == 1) {
+            at(p)->set_background_color(color_dialog_.dark_square());
         } else {
-            at(p)->setStyleSheet(base_light_color_);
+            at(p)->set_background_color(color_dialog_.light_square());
         }
         at(p)->set_highlight(false);
         // at(p)->disconnect(at(selected_piece_->position()).get());
@@ -231,10 +244,10 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     auto &pieces = turn_ == WHITE ? white_pieces_ : black_pieces_;
 
     // Check for en passant
-    if (last_move_.moved_piece_.get() != nullptr && piece->tag() == PAWN &&
+    if (last_move_.piece_.get() != nullptr && piece->tag() == PAWN &&
         Pawn::check_en_passant(last_move_, piece)) {
         int available_rank = piece->color() == WHITE ? 6 : 3;
-        Position pos(last_move_.old_.file_, available_rank), initial = piece->position();
+        Position pos(last_move().old_.file_, available_rank), initial = piece->position();
         piece->set_position(pos);
         pieces->erase(initial);
         pieces->insert({pos, piece});
@@ -261,7 +274,7 @@ void Chessboard::select_piece(Position &position, PieceColor color)
     // Check for promotions
     // #TODO
     for (auto &p : highlighted_moves_) {
-        at(p)->setStyleSheet("QLabel {background-color : red}");
+        at(p)->set_background_color(at(p)->background_color() + color_dialog_.legal_move());
         at(p)->set_highlight(true);
         // at(p)->connect(at(p).get(), &Square::clicked, at(p).get(), [this, p] () {
         //     this->move(this->selected_piece(), p);
@@ -271,9 +284,17 @@ void Chessboard::select_piece(Position &position, PieceColor color)
 
 void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
 {
+    if (moves_count_ > 0) {
+        at(last_move_.old_)->set_background_color(
+            (last_move_.old_.rank_ + last_move_.old_.file_) % 2 == 0 ? color_dialog_.light_square() : color_dialog_.dark_square());
+        at(last_move_.new_)->set_background_color(
+            (last_move_.new_.rank_ + last_move_.new_.file_) % 2 == 0 ? color_dialog_.light_square() : color_dialog_.dark_square());
+    }
+
     last_move_.old_ = piece->position();
     last_move_.new_ = destination;
-    last_move_.moved_piece_ = piece;
+    last_move_.piece_ = piece;
+
     piece->set_moved();
     if (piece->color() == WHITE) {
         at(piece->position())->setPixmap(blank_);
@@ -324,6 +345,11 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     special_moves_.clear();
     set_available_moves();
     trim_legal_moves();
+
+    at(last_move_.old_)->set_background_color(at(last_move_.old_)->background_color() + color_dialog().last_move());
+    at(last_move_.new_)->set_background_color(at(last_move_.new_)->background_color() + color_dialog().last_move());
+
+    moves_count_++;
 }
 
 void Chessboard::move(const Position destination)
