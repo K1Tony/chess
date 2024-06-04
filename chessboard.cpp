@@ -109,7 +109,7 @@ void Chessboard::check_for_draw()
                 return false;
             }
         }
-        return bishop_count == 1;
+        return bishop_count <= 1;
     };
 
     piece_map &white = white_pieces_, &black = black_pieces_;

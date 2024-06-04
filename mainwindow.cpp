@@ -113,7 +113,6 @@ MainWindow::MainWindow(QWidget *parent)
                     else {
                         this->chessboard_->reset_move_highlights();
                         this->chessboard_->check_for_mate();
-                        qDebug() << this->chessboard_->mate_property()->value();
                         this->chessboard_->check_for_draw();
                     }
                     this->chessboard_->at(piece->position())->setCursor(Qt::ArrowCursor);
