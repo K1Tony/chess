@@ -2,10 +2,12 @@
 #define COLORDIALOG_H
 
 #include <QColor>
+#include <QProperty>
 
 
 class MColor : public QColor {
 public:
+    MColor() : QColor(255, 255, 255) {}
     MColor(int red, int green, int blue, int alpha = 255) : QColor(red, green, blue, alpha) {}
 
     MColor(const QColor &color) : QColor(color) {}
@@ -35,9 +37,18 @@ public:
     MColor promotion() const;
     void setPromotion(const MColor &newPromotion);
 
-private:
-    MColor light_square_, dark_square_, legal_move_, last_move_, promotion_;
+    QProperty<MColor> &light_square() {return light_square_;}
 
+    QProperty<MColor> &dark_square() {return dark_square_;}
+
+    QProperty<MColor> &legal_move() {return legal_move_;}
+
+    QProperty<MColor> &last_move() {return last_move_;}
+
+    QProperty<MColor> &promotion() {return promotion_;}
+
+private:
+    QProperty<MColor> light_square_, dark_square_, legal_move_, last_move_, promotion_;
 };
 
 #endif // COLORDIALOG_H

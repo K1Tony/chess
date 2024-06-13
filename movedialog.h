@@ -25,8 +25,14 @@ public:
 
     void set_move(const Move &move);
 
+    std::unique_ptr<QLabel> &white_move() {return white_move_;}
+
+    std::unique_ptr<QLabel> &black_move() {return black_move_;}
+
 private:
-    std::unique_ptr<QLabel> white_move_, black_move_;
+    std::unique_ptr<QLabel>
+        white_move_ = std::make_unique<QLabel>(),
+        black_move_ = std::make_unique<QLabel>();
 };
 
 class MoveDialog

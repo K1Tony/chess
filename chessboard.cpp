@@ -14,6 +14,22 @@ bool Chessboard::is_attacked(const Position &position)
     return false;
 }
 
+void Chessboard::reset_square_colors()
+{
+    for (int i = 0; i < 64; i++) {
+        std::unique_ptr<Square> &square = squares_[i / 8][i % 8];
+        MColor basic_bg = (i / 8 + i % 8) % 2 == 1 ? color_dialog_.light_square() : color_dialog_.dark_square();
+
+        if (square->is_highlighted()) {
+            square->set_background_color(basic_bg + color_dialog_.legal_move());
+        } else if (Position(i % 8, i / 8 + 1) == last_move_.old_ || Position(i % 8, i / 8 + 1) == last_move_.new_) {
+            square->set_background_color(basic_bg + color_dialog_.last_move());
+        } else {
+            square->set_background_color(basic_bg);
+        }
+    }
+}
+
 void Chessboard::set_available_moves()
 {
     for (auto &pair : *white_pieces_) {
@@ -116,9 +132,66 @@ void Chessboard::check_for_draw()
     draw_property_->setValue(check(white) && check(black));
 }
 
-ChessboardColorDialog Chessboard::color_dialog() const
+void Chessboard::set_board()
 {
-    return color_dialog_;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            squares_[i][j]->setPixmap(blank_);
+            squares_[i][j]->set_background_color((i + j) % 2 == 0 ? color_dialog_.dark_square() : color_dialog_.light_square());
+        }
+    }
+    white_pieces_->clear();
+    black_pieces_->clear();
+    for (int i = 0; i < 8; i++) {
+        Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
+        white_pieces_->insert({white_pawn, std::make_shared<Pawn>(white_pawn, WHITE)});
+        black_pieces_->insert({black_pawn, std::make_shared<Pawn>(black_pawn, BLACK)});
+        if (i == A || i == H) {
+            white_pieces_->insert({white_piece, std::make_shared<Rook>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Rook>(black_piece, BLACK)});
+        } else if (i == B || i == G) {
+            white_pieces_->insert({white_piece, std::make_shared<Knight>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Knight>(black_piece, BLACK)});
+        } else if (i == C || i == F) {
+            white_pieces_->insert({white_piece, std::make_shared<Bishop>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Bishop>(black_piece, BLACK)});
+        } else if (i == D) {
+            white_pieces_->insert({white_piece, std::make_shared<Queen>(white_piece, WHITE)});
+            black_pieces_->insert({black_piece, std::make_shared<Queen>(black_piece, BLACK)});
+        } else {
+            white_king_ = std::make_shared<King>(white_piece, WHITE);
+            black_king_ = std::make_shared<King>(black_piece, BLACK);
+            white_pieces_->insert({white_piece, white_king_});
+            black_pieces_->insert({black_piece, black_king_});
+        }
+    }
+
+    for (auto &pair : *white_pieces_) {
+        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
+    }
+    for (auto &pair : *black_pieces_) {
+        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
+    }
+    turn_ = WHITE;
+    if (!white_up)
+        flip_chessboard();
+    last_move_ = Move();
+    moves_count_ = 0;
+    set_available_moves();
+}
+
+void Chessboard::flip_chessboard()
+{
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (white_up) {
+                layout_->addWidget(squares_[i][j].get(), i + 2, 8 - j);
+            } else {
+                layout_->addWidget(squares_[i][j].get(), 9 - i, j + 1);
+            }
+        }
+    }
+    white_up = !white_up;
 }
 
 int Chessboard::moves_count() const
@@ -188,6 +261,12 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
     mate_property_.reset(new QProperty<bool>());
     draw_property_.reset(new QProperty<bool>());
 
+    light_square_change_ = color_dialog_.light_square().addNotifier([this] () {this->reset_square_colors();});
+    dark_square_change_ = color_dialog_.dark_square().addNotifier([this] () {this->reset_square_colors();});
+    legal_move_change_ = color_dialog_.legal_move().addNotifier([this] () {this->reset_square_colors();});
+    last_move_change_ = color_dialog_.last_move().addNotifier([this] () {this->reset_square_colors();});
+    promotion_change_ = color_dialog_.promotion().addNotifier([this] () {this->reset_square_colors();});
+
     for (auto &pair : promotion_dialog_->squares()) {
         pair.second->setMinimumSize(square_size, square_size);
         pair.second->setMaximumSize(square_size, square_size);
@@ -211,39 +290,7 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
         }
     }
 
-    white_pieces_.reset(new std::map<Position, std::shared_ptr<Piece> >);
-    black_pieces_.reset(new std::map<Position, std::shared_ptr<Piece> >);
-
-    for (int i = 0; i < 8; i++) {
-        Position white_pawn(i, 2), black_pawn(i, 7), white_piece(i, 1), black_piece(i, 8);
-        // white_pieces_->insert({white_pawn, std::make_shared<Pawn>(white_pawn, WHITE)});
-        // black_pieces_->insert({black_pawn, std::make_shared<Pawn>(black_pawn, BLACK)});
-        if (i == A || i == H) {
-            // white_pieces_->insert({white_piece, std::make_shared<Rook>(white_piece, WHITE)});
-            // black_pieces_->insert({black_piece, std::make_shared<Rook>(black_piece, BLACK)});
-        } else if (i == B || i == G) {
-            // white_pieces_->insert({white_piece, std::make_shared<Knight>(white_piece, WHITE)});
-            // black_pieces_->insert({black_piece, std::make_shared<Knight>(black_piece, BLACK)});
-        } else if (i == C || i == F) {
-            // white_pieces_->insert({white_piece, std::make_shared<Bishop>(white_piece, WHITE)});
-            // black_pieces_->insert({black_piece, std::make_shared<Bishop>(black_piece, BLACK)});
-        } else if (i == D) {
-            white_pieces_->insert({white_piece, std::make_shared<Queen>(white_piece, WHITE)});
-            black_pieces_->insert({black_piece, std::make_shared<Queen>(black_piece, BLACK)});
-        } else {
-            white_king_ = std::make_shared<King>(white_piece, WHITE);
-            black_king_ = std::make_shared<King>(black_piece, BLACK);
-            white_pieces_->insert({white_piece, white_king_});
-            black_pieces_->insert({black_piece, black_king_});
-        }
-    }
-
-    for (auto &pair : *white_pieces_) {
-        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
-    }
-    for (auto &pair : *black_pieces_) {
-        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
-    }
+    set_board();
 
     highlighted_moves_.reserve(28);
     set_available_moves();
@@ -377,10 +424,12 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     set_available_moves();
     trim_legal_moves();
 
-    at(last_move_.old_)->set_background_color(at(last_move_.old_)->background_color() + color_dialog().last_move());
-    at(last_move_.new_)->set_background_color(at(last_move_.new_)->background_color() + color_dialog().last_move());
+    at(last_move_.old_)->set_background_color(at(last_move_.old_)->background_color() + color_dialog_.last_move());
+    at(last_move_.new_)->set_background_color(at(last_move_.new_)->background_color() + color_dialog_.last_move());
 
     moves_count_++;
+
+    flip_chessboard();
 }
 
 void Chessboard::move(const Position destination)

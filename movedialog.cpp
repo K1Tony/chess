@@ -40,11 +40,12 @@ void MoveDialog::write_move(const Move &move, QScrollArea *scroll_area)
 {
     if (move.piece_->color() == BLACK) {
         move_count_++;
-        moves_.back()->set_move(move);
+        // moves_.back()->set_move(move);
     } else {
         auto move_box = std::make_shared<MoveBox>();
         move_box->set_move(move);
-        moves_.push_back(move_box);
-        scroll_area->addScrollBarWidget(move_box.get(), Qt::AlignCenter);
+        // moves_.push_back(move_box);
+        scroll_area->setWidget(move_box->white_move().get());
+        // scroll_area->addScrollBarWidget(move_box.get(), Qt::AlignCenter);
     }
 }

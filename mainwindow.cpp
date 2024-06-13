@@ -33,15 +33,26 @@ MainWindow::MainWindow(QWidget *parent)
     }
     // setFixedSize(width(), square_length * 11);
 
-    mate_notifier_ = chessboard_->mate_property()->addNotifier([this] () {
-        this->ui->label->setText(this->chessboard_->turn() == WHITE ? "Black wins!" : "White wins!");
-        qDebug() << this->ui->label->text();
-    });
-    draw_notifier_ = chessboard_->draw_property()->addNotifier([this] () {
-        this->ui->label->setText("It's a draw!");
-        qDebug() << this->ui->label->text();
+    // chessboard_->color_dialog().setDark_square(MColor(0, 0, 255));
+
+    connect(ui->replay, &QPushButton::clicked, this, [this] () {
+        this->chessboard_->set_board();
     });
 
+    connect(ui->flip, &QPushButton::clicked, this, [this] () {
+        this->chessboard_->flip_chessboard();
+    });
+    ui->scrollArea->setBackgroundRole(QPalette::Dark);
+    set_interactive_squares();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::set_interactive_squares()
+{
     for (int rank = 1; rank <= 8; rank++) {
         for (int file = 0; file < 8; file++) {
             connect(chessboard_->at(file, rank).get(), &Square::hovered, this, [this, file, rank] () {
@@ -79,6 +90,8 @@ MainWindow::MainWindow(QWidget *parent)
                     auto piece = this->chessboard_->selected_piece();
 
                     this->chessboard_->move(pos);
+                    // this->chessboard_->move_dialog()->write_move(this->chessboard_->last_move(),
+                    //                                              this->ui->scrollArea);
 
                     if (this->chessboard_->check_promotion()) {
                         this->chessboard_->__set_turn(turn);
@@ -125,9 +138,4 @@ MainWindow::MainWindow(QWidget *parent)
             });
         }
     }
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }

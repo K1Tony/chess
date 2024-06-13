@@ -42,6 +42,8 @@ typedef struct Position{
         return QString((char) (lowercase ? 'a' + file_ : 'A' + file_)).append((char) ('0' + rank_));
     }
 
+    Position symmetric() {return Position(file_, 9 - rank_);}
+
 } Position;
 
 #endif // PROPERTIES_H

@@ -29,6 +29,8 @@ private:
 
     QPropertyNotifier mate_notifier_, draw_notifier_;
 
+    void set_interactive_squares();
+
     // MoveDialog move_dialog_;
 };
 #endif // MAINWINDOW_H
