@@ -28,6 +28,8 @@ public:
 
     [[nodiscard]] std::vector<Position> &__legal_moves() {return legal_moves_;}
 
+    [[nodiscard]] QChar code() const {return code_;}
+
     void __set_legal_moves(std::vector<Position> &moves) {legal_moves_ = moves;}
 
     void set_color(int color) {color_ = (PieceColor) color;}
@@ -58,6 +60,8 @@ protected:
 
     std::vector<Position> legal_moves_;
 
+    QChar code_;
+
 };
 
 void fill_rook_moves(const Position &position,
@@ -69,11 +73,5 @@ void fill_diagonals(const Position &position,
                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsA,
                     const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &positionsB,
                     std::vector<Position> &result);
-
-typedef struct LastMove{
-    Position old_;
-    Position new_;
-    std::shared_ptr<Piece> moved_piece_;
-} LastMove;
 
 #endif // PIECE_H

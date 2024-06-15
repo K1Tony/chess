@@ -1,6 +1,9 @@
 #ifndef PROPERTIES_H
 #define PROPERTIES_H
 
+#include <QString>
+
+
 enum File{
     A, B, C, D, E, F, G, H
 };
@@ -34,6 +37,13 @@ typedef struct Position{
     }
 
     bool in_bounds() const {return 0 <= file_ && file_ <= 7 && 0 < rank_ && rank_ <= 8;}
+
+    QString to_string(const bool lowercase = false) const {
+        return QString((char) (lowercase ? 'a' + file_ : 'A' + file_)).append((char) ('0' + rank_));
+    }
+
+    Position symmetric() {return Position(file_, 9 - rank_);}
+
 } Position;
 
 #endif // PROPERTIES_H

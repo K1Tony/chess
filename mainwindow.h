@@ -4,10 +4,11 @@
 #include <Chessboard.h>
 #include <piece.h>
 #include <QMainWindow>
+#include <movedialog.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+class mainwindow;
 }
 QT_END_NAMESPACE
 
@@ -20,10 +21,22 @@ public:
     ~MainWindow();
 
 private:
-    Ui::MainWindow *ui;
+    Ui::mainwindow *ui;
+    QWidget *settings_widget_ = new QWidget;
+
+    MoveDialog *move_dialog_ = new MoveDialog;
 
     std::unique_ptr<Chessboard> chessboard_;
 
     bool promoting_;
+
+    int move_count_;
+
+    bool mate_, draw_;
+
+    void set_interactive_squares();
+
+    // MoveDialog move_dialog_;
+    void closeEvent(QCloseEvent *event);
 };
 #endif // MAINWINDOW_H

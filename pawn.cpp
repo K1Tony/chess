@@ -1,5 +1,4 @@
 #include "pawn.h"
-#include "iostream"
 #include "map"
 
 Pawn::Pawn(Position position, PieceColor color) : Piece(position, color)
@@ -9,6 +8,7 @@ Pawn::Pawn(Position position, PieceColor color) : Piece(position, color)
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-pawn.png"));
     tag_ = PAWN;
+    code_ = '\0';
 
 }
 
@@ -56,9 +56,9 @@ void Pawn::available_moves(
     }
 }
 
-bool Pawn::check_en_passant(const LastMove &last_move, std::shared_ptr<Piece> &pawn)
+bool Pawn::check_en_passant(const Move &last_move, std::shared_ptr<Piece> &pawn)
 {
-    if (last_move.moved_piece_->tag() != PAWN) return false;
+    if (last_move.piece_->tag() != PAWN) return false;
     if (pawn->color() == WHITE && pawn->position().rank_ != 5) return false;
     if (pawn->color() == BLACK && pawn->position().rank_ != 4) return false;
 

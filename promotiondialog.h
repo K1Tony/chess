@@ -8,7 +8,7 @@
 class PromotionDialog
 {
 public:
-    PromotionDialog(QWidget *parent);
+    PromotionDialog(QWidget *parent = Q_NULLPTR);
 
     [[nodiscard]] std::map<PieceTag, std::unique_ptr<Square> > &squares() {return squares_;}
 

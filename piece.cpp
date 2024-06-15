@@ -4,6 +4,8 @@ Piece::Piece(Position position, PieceColor color) {
     position_ = position;
     color_ = color;
     legal_moves_.reserve(28);
+
+
 }
 
 /*

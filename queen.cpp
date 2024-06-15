@@ -7,6 +7,7 @@ Queen::Queen(Position position, PieceColor color) : Piece(position, color)
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-queen.png"));
     tag_ = QUEEN;
+    code_ = 'Q';
 }
 
 void Queen::available_moves(

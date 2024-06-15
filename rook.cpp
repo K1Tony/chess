@@ -7,6 +7,7 @@ Rook::Rook(Position position, PieceColor color) : Piece(position, color)
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-rook.png"));
     tag_ = ROOK;
+    code_ = 'R';
 }
 
 void Rook::available_moves(

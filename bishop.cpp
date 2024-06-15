@@ -6,6 +6,8 @@ Bishop::Bishop(Position position, PieceColor color) : Piece(position, color)
         pixmap_.reset(new QPixmap(":/graphics/resources/white-bishop.png"));
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-bishop.png"));
+    tag_ = BISHOP;
+    code_ = 'B';
 }
 
 void Bishop::available_moves(

@@ -13,10 +13,12 @@ SOURCES += \
     castling_logic.cpp \
     checks_logic.cpp \
     chessboard.cpp \
+    colordialog.cpp \
     king.cpp \
     knight.cpp \
     main.cpp \
     mainwindow.cpp \
+    movedialog.cpp \
     pawn.cpp \
     piece.cpp \
     promotiondialog.cpp \
@@ -29,9 +31,11 @@ HEADERS += \
     castling_logic.h \
     checks_logic.h \
     chessboard.h \
+    colordialog.h \
     king.h \
     knight.h \
     mainwindow.h \
+    movedialog.h \
     pawn.h \
     piece.h \
     promotiondialog.h \

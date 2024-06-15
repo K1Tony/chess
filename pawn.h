@@ -2,6 +2,7 @@
 #define PAWN_H
 
 #include "piece.h"
+#include "movedialog.h"
 
 class Pawn : public Piece
 {
@@ -13,7 +14,7 @@ public:
         const std::unique_ptr< std::map<Position, std::shared_ptr<Piece> > > &black_pieces)
         override;
 
-    static bool check_en_passant(const LastMove &last_move,
+    static bool check_en_passant(const Move &last_move,
                                  std::shared_ptr<Piece> &pawn);
 
 };
