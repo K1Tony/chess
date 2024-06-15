@@ -10,6 +10,8 @@
 #include <knight.h>
 #include <QPair>
 
+#include <QStandardItemModel>
+
 #include <QPushButton>
 #include <qlabel.h>
 #include <QScreen>
@@ -35,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // chessboard_->color_dialog().setDark_square(MColor(0, 0, 255));
 
+    auto view = new QHeaderView(Qt::Orientation::Vertical);
+    ui->tableView->setVerticalHeader(view);
+
     connect(ui->replay, &QPushButton::clicked, this, [this] () {
         this->chessboard_->set_board();
     });
@@ -42,13 +47,32 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->flip, &QPushButton::clicked, this, [this] () {
         this->chessboard_->flip_chessboard();
     });
-    ui->scrollArea->setBackgroundRole(QPalette::Dark);
+
+    connect(ui->settings, &QPushButton::clicked, this, [this] () {
+        if (this->settings_widget_->isHidden())
+            this->settings_widget_->show();
+        else
+            this->settings_widget_->hide();
+    });
+
+    auto white = new QStandardItem(QObject::tr("White"));
+    auto black = new QStandardItem(QObject::tr("Black"));
+
+    model_->setHorizontalHeaderItem(0, white);
+    model_->setHorizontalHeaderItem(1, black);
+
+    ui->tableView->setModel(model_);
+
     set_interactive_squares();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::closeEvent (QCloseEvent *event) {
+    settings_widget_->close();
 }
 
 void MainWindow::set_interactive_squares()
@@ -90,8 +114,17 @@ void MainWindow::set_interactive_squares()
                     auto piece = this->chessboard_->selected_piece();
 
                     this->chessboard_->move(pos);
-                    // this->chessboard_->move_dialog()->write_move(this->chessboard_->last_move(),
-                    //                                              this->ui->scrollArea);
+                    if (this->chessboard_->turn() == WHITE)
+                    {
+                        this->black_moves_.push_back(this->chessboard_->last_move());
+                        this->model_->setItem(move_count_, 1, new MoveBox(this->chessboard_->last_move()));
+                        move_count_++;
+                    }
+                    else
+                    {
+                        this->white_moves_.push_back(this->chessboard_->last_move());
+                        this->model_->setItem(move_count_, 0, new MoveBox(this->chessboard_->last_move()));
+                    }
 
                     if (this->chessboard_->check_promotion()) {
                         this->chessboard_->__set_turn(turn);

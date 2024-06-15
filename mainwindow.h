@@ -22,15 +22,22 @@ public:
 
 private:
     Ui::mainwindow *ui;
+    QWidget *settings_widget_ = new QWidget;
+    std::vector<Move> white_moves_, black_moves_;
+
+    QStandardItemModel *model_ = new QStandardItemModel;
 
     std::unique_ptr<Chessboard> chessboard_;
 
     bool promoting_;
+
+    int move_count_;
 
     QPropertyNotifier mate_notifier_, draw_notifier_;
 
     void set_interactive_squares();
 
     // MoveDialog move_dialog_;
+    void closeEvent(QCloseEvent *event);
 };
 #endif // MAINWINDOW_H
