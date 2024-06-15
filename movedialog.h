@@ -12,7 +12,7 @@ struct Move {
     Position old_, new_;
     std::shared_ptr<Piece> piece_, promotion_into_;
     bool take_, check_, mate_;
-    SpecialMoveTag special_;
+    int special_ = -1;
 
     Move() = default;
     Move(const Position &old_pos, const Position &new_pos, std::shared_ptr<Piece> &piece);
@@ -21,23 +21,27 @@ struct Move {
 class MoveBox : public QStandardItem {
 public:
     MoveBox() : QStandardItem() {}
-    MoveBox(const Move &move);
+    MoveBox(const Move &move, bool has_twin_controller = false);
 };
 
-class MoveDialog
+class MoveDialog : public QStandardItemModel
 {
 public:
     MoveDialog();
 
     [[nodiscard]] int move_count() {return move_count_;}
 
-    void write_move(const Move &move);
+    void append_move(const Move &move, bool twin);
 
     void undo();
 
+    void clear_moves();
+
 private:
     int move_count_;
-    std::vector< Move > moves_;
+    std::vector< Move > white_moves_, black_moves_;
+
+    void init();
 
 };
 

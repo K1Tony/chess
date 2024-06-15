@@ -23,9 +23,8 @@ public:
 private:
     Ui::mainwindow *ui;
     QWidget *settings_widget_ = new QWidget;
-    std::vector<Move> white_moves_, black_moves_;
 
-    QStandardItemModel *model_ = new QStandardItemModel;
+    MoveDialog *move_dialog_ = new MoveDialog;
 
     std::unique_ptr<Chessboard> chessboard_;
 
@@ -33,7 +32,7 @@ private:
 
     int move_count_;
 
-    QPropertyNotifier mate_notifier_, draw_notifier_;
+    bool mate_, draw_;
 
     void set_interactive_squares();
 

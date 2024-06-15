@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->replay, &QPushButton::clicked, this, [this] () {
         this->chessboard_->set_board();
+        this->move_dialog_->clear_moves();
     });
 
     connect(ui->flip, &QPushButton::clicked, this, [this] () {
@@ -55,13 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
             this->settings_widget_->hide();
     });
 
-    auto white = new QStandardItem(QObject::tr("White"));
-    auto black = new QStandardItem(QObject::tr("Black"));
-
-    model_->setHorizontalHeaderItem(0, white);
-    model_->setHorizontalHeaderItem(1, black);
-
-    ui->tableView->setModel(model_);
+    ui->tableView->setModel(move_dialog_);
 
     set_interactive_squares();
 }
@@ -112,19 +107,12 @@ void MainWindow::set_interactive_squares()
                            this->chessboard_->at(pos)->is_highlighted()){
 
                     auto piece = this->chessboard_->selected_piece();
+                    std::vector<std::shared_ptr<Piece>> attackers = this->chessboard_->get_attackers(pos, this->chessboard_->turn());
+                    bool twin = std::count_if(attackers.begin(), attackers.end(), [&piece] (std::shared_ptr<Piece> &pc) {
+                                    return piece.get() != pc.get() && piece->tag() == pc->tag();
+                                }) > 0;
 
                     this->chessboard_->move(pos);
-                    if (this->chessboard_->turn() == WHITE)
-                    {
-                        this->black_moves_.push_back(this->chessboard_->last_move());
-                        this->model_->setItem(move_count_, 1, new MoveBox(this->chessboard_->last_move()));
-                        move_count_++;
-                    }
-                    else
-                    {
-                        this->white_moves_.push_back(this->chessboard_->last_move());
-                        this->model_->setItem(move_count_, 0, new MoveBox(this->chessboard_->last_move()));
-                    }
 
                     if (this->chessboard_->check_promotion()) {
                         this->chessboard_->__set_turn(turn);
@@ -150,16 +138,30 @@ void MainWindow::set_interactive_squares()
                                 this->promoting_ = false;
                                 this->chessboard_->reset_move_highlights();
 
-                                this->chessboard_->check_for_mate();
-                                this->chessboard_->check_for_draw();
+                                this->mate_ = this->chessboard_->check_for_mate();
+                                this->draw_ = this->chessboard_->check_for_draw();
+
+                                Move promotion_move(this->chessboard_->last_move());
+                                promotion_move.mate_ = this->mate_;
+                                promotion_move.check_ = this->chessboard_->scan_checks();
+                                promotion_move.promotion_into_ = pieces->at(p);
+                                qDebug() << (promotion_move.promotion_into_.get() != nullptr);
+                                this->move_dialog_->append_move(promotion_move, false);
+
+                                this->chessboard_->flip_chessboard();
                             });
                         }
                         this->chessboard_->reset_move_highlights();
                     }
                     else {
+                        Move mv(this->chessboard_->last_move());
                         this->chessboard_->reset_move_highlights();
-                        this->chessboard_->check_for_mate();
-                        this->chessboard_->check_for_draw();
+                        this->mate_ = this->chessboard_->check_for_mate();
+                        this->draw_ = this->chessboard_->check_for_draw();
+                        mv.mate_ = this->mate_;
+                        mv.check_ = this->chessboard_->scan_checks();
+                        this->move_dialog_->append_move(mv, twin);
+                        this->chessboard_->flip_chessboard();
                     }
                     this->chessboard_->at(piece->position())->setCursor(Qt::ArrowCursor);
 

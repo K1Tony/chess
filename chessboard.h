@@ -68,6 +68,12 @@ public:
 
     [[nodiscard]] std::unique_ptr<PromotionDialog> &promotion_dialog() {return promotion_dialog_;}
 
+    std::vector< std::shared_ptr<Piece> > get_attackers(File file, int rank, PieceColor color);
+
+    std::vector< std::shared_ptr<Piece> > get_attackers(const Position &position, PieceColor color);
+
+    std::vector< std::shared_ptr<Piece> > get_attackers(int file, int rank, PieceColor color);
+
     void reset_move_highlights();
 
     void select_piece(Position &position, PieceColor color);
@@ -90,9 +96,9 @@ public:
 
     void register_move(Move &move);
 
-    void check_for_mate();
+    bool check_for_mate();
 
-    void check_for_draw();
+    bool check_for_draw();
 
     void set_board();
 

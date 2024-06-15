@@ -1,24 +1,14 @@
 #include "movedialog.h"
 
 Move::Move(const Position &old_pos, const Position &new_pos, std::shared_ptr<Piece> &piece) :
-    old_(old_pos), new_(new_pos), piece_(piece)
+    old_(old_pos), new_(new_pos), piece_(piece), take_(false), check_(false), mate_(false), special_(-1)
 {
-    special_ = (SpecialMoveTag) -1;
 }
 
-MoveDialog::MoveDialog() {
-    moves_.reserve(100);
-}
 
-void MoveDialog::write_move(const Move &move)
-{
-    if (move.piece_->color() == BLACK) {
-        move_count_++;
-    }
-    moves_.push_back(move);
-}
 
-MoveBox::MoveBox(const Move &move) : QStandardItem()
+
+MoveBox::MoveBox(const Move &move, bool has_twin_controller) : QStandardItem()
 {
     QString text;
 
@@ -28,18 +18,56 @@ MoveBox::MoveBox(const Move &move) : QStandardItem()
         text = "O-O";
     }
     else {
-        text.append(move.piece_->code());
-        if (move.take_)
+        if (move.piece_->tag() != PAWN)
+            text.append(move.piece_->code());
+        if (has_twin_controller)
+            text.append((QChar) ('a' + move.old_.file_));
+        if (move.take_){
+            if (move.piece_->tag() == PAWN)
+                text.append((QChar) ('a' + move.old_.file_));
             text.append('x');
+        }
         text.append(move.new_.to_string(true));
-        if (move.check_)
-            text.append('+');
-        else if (move.mate_)
-            text.append('#');
         if (move.special_ == EN_PASSANT)
             text.append('~');
         else if (move.promotion_into_.get() != nullptr)
             text.append(QString('=').append(move.promotion_into_->code()));
     }
+    if (move.mate_)
+        text.append('#');
+    else if (move.check_)
+        text.append('+');
     setText(text);
+}
+
+MoveDialog::MoveDialog() : QStandardItemModel()
+{
+    init();
+}
+
+void MoveDialog::append_move(const Move &move, bool twin)
+{
+    std::vector<Move> &moves = move.piece_->color() == WHITE ? white_moves_ : black_moves_;
+
+    // white: 0, black: 1
+    int col = move.piece_->color();
+    moves.push_back(move);
+    setItem(move_count_, col, new MoveBox(move, twin));
+    move_count_ += col;
+}
+
+void MoveDialog::clear_moves()
+{
+    clear();
+    init();
+}
+
+void MoveDialog::init()
+{
+    move_count_ = 0;
+    auto white = new QStandardItem(QObject::tr("White"));
+    auto black = new QStandardItem(QObject::tr("Black"));
+    setHorizontalHeaderItem(0, white);
+    setHorizontalHeaderItem(1, black);
+    setColumnCount(2);
 }

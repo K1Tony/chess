@@ -99,16 +99,15 @@ void Chessboard::trim_legal_moves()
 
 }
 
-void Chessboard::check_for_mate()
+bool Chessboard::check_for_mate()
 {
-    mate_property_->setValue(scan_checks() && legal_moves_count_ == 0);
+    return scan_checks() && legal_moves_count_ == 0;
 }
 
-void Chessboard::check_for_draw()
+bool Chessboard::check_for_draw()
 {
     if (legal_moves_count_ == 0 && !scan_checks()) {
-        draw_property_->setValue(true);
-        return;
+        return true;
     }
     typedef std::unique_ptr< std::map< Position, std::shared_ptr<Piece> > > piece_map;
 
@@ -129,7 +128,7 @@ void Chessboard::check_for_draw()
     };
 
     piece_map &white = white_pieces_, &black = black_pieces_;
-    draw_property_->setValue(check(white) && check(black));
+    return check(white) && check(black);
 }
 
 void Chessboard::set_board()
@@ -256,6 +255,8 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
     parent_.reset(parent);
     layout_.reset(layout);
 
+    qDebug() << last_move_.special_;
+
     promotion_dialog_.reset(new PromotionDialog());
 
     mate_property_.reset(new QProperty<bool>());
@@ -314,6 +315,32 @@ std::unique_ptr<Square> &Chessboard::at(File file, int rank)
 std::unique_ptr<Square> &Chessboard::at(const Position &position)
 {
     return at(position.file_, position.rank_);
+}
+
+std::vector<std::shared_ptr<Piece> > Chessboard::get_attackers(const Position &position, PieceColor color)
+{
+    return get_attackers(position.file_, position.rank_, color);
+}
+
+std::vector<std::shared_ptr<Piece> > Chessboard::get_attackers(File file, int rank, PieceColor color)
+{
+    std::vector<std::shared_ptr<Piece>> result;
+    result.reserve(16);
+    std::unique_ptr<piece_map> &pieces = color == WHITE ? white_pieces_ : black_pieces_;
+    for (auto &pair : *pieces) {
+        for (auto &pos : pair.second->legal_moves()) {
+            if (pos.file_ == file && pos.rank_ == rank) {
+                result.push_back(pair.second);
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+std::vector<std::shared_ptr<Piece> > Chessboard::get_attackers(int file, int rank, PieceColor color)
+{
+    return get_attackers((File) file, rank, color);
 }
 
 void Chessboard::reset_move_highlights()
@@ -389,10 +416,7 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
         at(last_move_.new_)->set_background_color(
             (last_move_.new_.rank_ + last_move_.new_.file_) % 2 == 0 ? color_dialog_.light_square() : color_dialog_.dark_square());
     }
-
-    last_move_.old_ = piece->position();
-    last_move_.new_ = destination;
-    last_move_.piece_ = piece;
+    last_move_ = Move(piece->position(), destination, piece);
 
     piece->set_moved();
 
@@ -408,14 +432,21 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     piece->set_position(destination);
     if (enemy_pieces->count(destination) > 0) {
         enemy_pieces->erase(destination);
+        last_move_.take_ = true;
     } else if (special_moves_.count(EN_PASSANT) > 0 && destination == special_moves_.at(EN_PASSANT)) {
         Position ep(destination.file_, 5);
         at(ep)->setPixmap(blank_);
         enemy_pieces->erase(ep);
-    } else if (special_moves_.count(SHORT_CASTLING) > 0 && destination == special_moves_.at(SHORT_CASTLING)) {
+        last_move_.special_ = EN_PASSANT;
+        last_move_.take_ = true;
+    } else if (special_moves_.count(SHORT_CASTLING) > 0 &&
+               destination == special_moves_.at(SHORT_CASTLING)) {
         castle(SHORT_CASTLING, turn());
-    } else if (special_moves_.count(LONG_CASTLING) > 0 && destination == special_moves_.at(LONG_CASTLING)) {
+        last_move_.special_ = SHORT_CASTLING;
+    } else if (special_moves_.count(LONG_CASTLING) > 0 &&
+               destination == special_moves_.at(LONG_CASTLING)) {
         castle(LONG_CASTLING, turn());
+        last_move_.special_ = LONG_CASTLING;
     }
     turn_ = opposite;
 
@@ -429,7 +460,6 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
 
     moves_count_++;
 
-    flip_chessboard();
 }
 
 void Chessboard::move(const Position destination)
