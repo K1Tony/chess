@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableView->setVerticalHeader(view);
 
     connect(ui->replay, &QPushButton::clicked, this, [this] () {
-        this->chessboard_->set_board();
+        this->chessboard_->readFEN(FEN(FEN::basic_fen));
         this->move_dialog_->clear_moves();
     });
 
@@ -149,8 +149,8 @@ void MainWindow::set_interactive_squares()
                                 promotion_move.promotion_into_ = pieces->at(p);
                                 qDebug() << (promotion_move.promotion_into_.get() != nullptr);
                                 this->move_dialog_->append_move(promotion_move, false);
-
-                                this->chessboard_->flip_chessboard();
+                                if (this->chessboard_->flips_after_move())
+                                    this->chessboard_->flip_chessboard();
                             });
                         }
                         this->chessboard_->reset_move_highlights();
@@ -163,7 +163,8 @@ void MainWindow::set_interactive_squares()
                         mv.mate_ = this->mate_;
                         mv.check_ = this->chessboard_->scan_checks();
                         this->move_dialog_->append_move(mv, twin);
-                        this->chessboard_->flip_chessboard();
+                        if (this->chessboard_->flips_after_move())
+                            this->chessboard_->flip_chessboard();
                     }
                     this->chessboard_->at(piece->position())->setCursor(Qt::ArrowCursor);
 

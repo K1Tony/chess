@@ -24,9 +24,27 @@ public:
 
     FEN &update_castling_rights(SpecialMoveTag style, PieceColor color);
 
-    FEN &write(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces);
+    void write(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces) const;
 
     FEN &read(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces);
+
+    [[nodiscard]] QStringList piece_placement() const {return piece_placement_;}
+
+    [[nodiscard]] QString turn_str() const {return turn_;}
+
+    [[nodiscard]] PieceColor turn() const {return turn_ == 'w' ? WHITE : BLACK;}
+
+    [[nodiscard]] QString castling_rights() const {return castling_rights_;}
+
+    [[nodiscard]] QString en_passant() const {return en_passant_;}
+
+    [[nodiscard]] QString halfmoves_str() const {return halfmoves_;}
+
+    [[nodiscard]] int halfmoves() const {return halfmoves_.toInt();}
+
+    [[nodiscard]] QString fullmoves_str() const {return fullmoves_;}
+
+    [[nodiscard]] int fullmoves() const {return fullmoves_.toInt();}
 
 private:
     QStringList piece_placement_;

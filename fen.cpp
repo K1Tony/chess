@@ -43,7 +43,8 @@ FEN FEN::update(const Position &_old, const Position &_new)
     return FEN(FEN::basic_fen);
 }
 
-FEN &FEN::write(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces)
+void FEN::write(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces)
+const
 {
     int rank = 8;
     int file = A;
@@ -77,10 +78,11 @@ FEN &FEN::write(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_
             default:
                 break;
             }
-
+            file++;
         }
+        rank--;
+        file = A;
     }
-    return *this;
 }
 
 FEN &FEN::read(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces)
@@ -112,6 +114,5 @@ FEN &FEN::read(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_m
             skip = 0;
         }
     }
-
     return *this;
 }

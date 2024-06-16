@@ -25,6 +25,7 @@ SOURCES += \
     promotiondialog.cpp \
     queen.cpp \
     rook.cpp \
+    settingswidget.cpp \
     square.cpp
 
 HEADERS += \
@@ -44,6 +45,7 @@ HEADERS += \
     properties.h \
     queen.h \
     rook.h \
+    settingswidget.h \
     square.h
 
 FORMS += \
