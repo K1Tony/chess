@@ -1,5 +1,7 @@
 #include "chessboard.h"
 
+#include <FEN.h>
+
 bool Chessboard::is_attacked(const Position &position)
 {
     std::unique_ptr< std::map< Position, std::shared_ptr<Piece> > > &attacking_pieces =
@@ -177,6 +179,10 @@ void Chessboard::set_board()
     last_move_ = Move();
     moves_count_ = 0;
     set_available_moves();
+
+    FEN fen;
+    fen.read(white_pieces_, black_pieces_);
+    qDebug() << fen.to_string();
 }
 
 void Chessboard::flip_chessboard()
@@ -206,6 +212,38 @@ std::shared_ptr<QProperty<bool> > Chessboard::mate_property() const
 std::shared_ptr<QProperty<bool> > Chessboard::draw_property() const
 {
     return draw_property_;
+}
+
+void Chessboard::read_FEN(QString FEN)
+{
+
+}
+
+QString Chessboard::make_FEN()
+{
+    QString fen;
+    for (int rank = 0; rank < 8; rank++) {
+        int empty = 0;
+        for (int file = 0; file < 8; file++) {
+            auto piece = piece_at(Position(file, rank + 1));
+            if (piece.get() == nullptr) {
+                empty++;
+                continue;
+            }
+            if (empty > 0) {
+                fen.append((QChar) ('0' + empty));
+                empty = 0;
+            }
+            if (piece->color() == WHITE)
+                fen.append(piece->code());
+            else
+                fen.append(piece->code().toLower());
+        }
+        fen.append('/');
+    }
+    fen.append(QString(' ').append(turn_ == WHITE ? 'w' : 'b'));
+
+    return fen;
 }
 
 bool Chessboard::check_promotion()
@@ -459,7 +497,9 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     at(last_move_.new_)->set_background_color(at(last_move_.new_)->background_color() + color_dialog_.last_move());
 
     moves_count_++;
-
+    FEN fen;
+    fen.read(white_pieces_, black_pieces_);
+    qDebug() << fen.to_string();
 }
 
 void Chessboard::move(const Position destination)

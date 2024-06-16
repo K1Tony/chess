@@ -14,6 +14,7 @@ SOURCES += \
     checks_logic.cpp \
     chessboard.cpp \
     colordialog.cpp \
+    fen.cpp \
     king.cpp \
     knight.cpp \
     main.cpp \
@@ -32,6 +33,7 @@ HEADERS += \
     checks_logic.h \
     chessboard.h \
     colordialog.h \
+    fen.h \
     king.h \
     knight.h \
     mainwindow.h \

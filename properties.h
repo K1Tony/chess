@@ -29,7 +29,7 @@ typedef struct Position{
     Position(File file, int rank) : file_(file), rank_(rank) {}
 
     bool operator<(const Position &other) const {
-        return file_ == other.file_ ? rank_ < other.rank_ : file_ < other.file_;
+        return rank_ == other.rank_ ? file_ < other.file_ : rank_ < other.rank_;
     }
 
     bool operator==(const Position &other) const {

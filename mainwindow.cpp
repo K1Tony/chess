@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent)
             this->settings_widget_->hide();
     });
 
+    connect(ui->undo, &QPushButton::clicked, this, [this] () {this->move_dialog_->undo();});
+
     ui->tableView->setModel(move_dialog_);
 
     set_interactive_squares();

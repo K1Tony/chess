@@ -116,6 +116,10 @@ public:
 
     void undo();
 
+    void read_FEN(QString FEN);
+
+    QString make_FEN();
+
 private:
     std::unique_ptr<QWidget> parent_;
 
@@ -162,6 +166,8 @@ private:
     bool white_up = true;
 
     int max_undos_ = 5;
+
+    std::vector<QString> FEN_history;
 };
 
 #endif // CHESSBOARD_H
