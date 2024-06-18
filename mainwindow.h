@@ -28,7 +28,11 @@ private:
 
     std::unique_ptr<Chessboard> chessboard_;
 
-    bool promoting_;
+    std::vector<FEN> position_history_;
+
+    bool promoting_ = false;
+
+    int square_length_;
 
     int move_count_;
 

@@ -127,9 +127,12 @@ public:
 
     void readFEN(const FEN &fen);
 
-    QString make_FEN();
+    FEN writeFEN();
 
     void set_basic_board();
+
+    void register_position();
+
 
 private:
     std::unique_ptr<QWidget> parent_;
@@ -177,8 +180,6 @@ private:
     bool white_up = true;
 
     int max_undos_ = 5;
-
-    std::vector<QString> FEN_history;
 
     bool flip_after_move_ = true;
 };

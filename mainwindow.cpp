@@ -16,6 +16,10 @@
 #include <qlabel.h>
 #include <QScreen>
 
+#include <QDrag>
+#include <QMimeData>
+#include <qthread.h>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::mainwindow)
@@ -23,15 +27,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     int playing_area = this->width() * 0.8;
-    int square_length = playing_area / 8;
+    square_length_ = playing_area / 8;
 
     // Chessboard init
-    chessboard_.reset(new Chessboard(square_length, ui->gridLayout, ui->centralwidget));
+    chessboard_.reset(new Chessboard(square_length_, ui->gridLayout, ui->centralwidget));
     for (int i = 0; i < 10; i++) {
-        ui->gridLayout->setColumnMinimumWidth(i, square_length);
+        ui->gridLayout->setColumnMinimumWidth(i, square_length_);
     }
     for (int i = 0; i < 12; i++) {
-        ui->gridLayout->setRowMinimumHeight(i, square_length);
+        ui->gridLayout->setRowMinimumHeight(i, square_length_);
     }
     // setFixedSize(width(), square_length * 11);
 
@@ -89,6 +93,7 @@ void MainWindow::set_interactive_squares()
             connect(chessboard_->at(file, rank).get(), &Square::clicked, this, [this, file, rank] () {
                 Position pos(file, rank);
                 PieceColor turn = this->chessboard_->turn(), opposite = (PieceColor) ((this->chessboard_->turn() + 1) % 2);
+                qDebug() << this->promoting_;
                 if (this->promoting_ && this->chessboard_->selected_piece()->tag() == PAWN) {
                     return;
                 } else if (this->promoting_){
@@ -100,11 +105,35 @@ void MainWindow::set_interactive_squares()
                     // this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
                     this->chessboard_->select_piece(pos, WHITE);
 
+                    if (!this->chessboard_->selected_piece()->legal_moves().empty()){
+                        QDrag *drag = new QDrag(this->chessboard_->at(pos).get());
+                        QMimeData *mimeData = new QMimeData;
+
+                        QPixmap pm = this->chessboard_->at(pos)->pixmap();
+                        pm = pm.scaled(this->square_length_, this->square_length_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                        drag->setMimeData(mimeData);
+                        drag->setPixmap(pm);
+                        drag->setHotSpot(QPoint(pm.width() / 2, pm.height() / 2));
+                        drag->exec(Qt::MoveAction);
+                    }
+
                 } else if (this->chessboard_->turn() == BLACK &&
                            this->chessboard_->black_pieces()->count(pos) > 0) {
                     // this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
                     this->chessboard_->select_piece(pos, BLACK);
+                    if (!this->chessboard_->selected_piece()->legal_moves().empty()){
+                        QDrag *drag = new QDrag(this->chessboard_->at(pos).get());
+                        QMimeData *mimeData = new QMimeData;
 
+                        QPixmap pm = this->chessboard_->at(pos)->pixmap();
+                        pm = pm.scaled(this->square_length_, this->square_length_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                        drag->setMimeData(mimeData);
+                        drag->setPixmap(pm);
+                        drag->setHotSpot(QPoint(pm.width() / 2, pm.height() / 2));
+                        drag->exec(Qt::MoveAction);
+                    }
+
+                // MOVING PIECE
                 } else if (this->chessboard_->selected_piece().get() != nullptr &&
                            this->chessboard_->at(pos)->is_highlighted()){
 
@@ -116,6 +145,7 @@ void MainWindow::set_interactive_squares()
 
                     this->chessboard_->move(pos);
 
+                    // CHECKING FOR PROMOTIONS
                     if (this->chessboard_->check_promotion()) {
                         this->chessboard_->__set_turn(turn);
                         this->promoting_ = true;
@@ -155,6 +185,7 @@ void MainWindow::set_interactive_squares()
                         }
                         this->chessboard_->reset_move_highlights();
                     }
+                    // NO PROMOTION
                     else {
                         Move mv(this->chessboard_->last_move());
                         this->chessboard_->reset_move_highlights();
@@ -165,6 +196,8 @@ void MainWindow::set_interactive_squares()
                         this->move_dialog_->append_move(mv, twin);
                         if (this->chessboard_->flips_after_move())
                             this->chessboard_->flip_chessboard();
+
+
                     }
                     this->chessboard_->at(piece->position())->setCursor(Qt::ArrowCursor);
 

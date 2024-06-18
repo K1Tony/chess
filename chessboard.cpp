@@ -248,31 +248,9 @@ void Chessboard::readFEN(const FEN &fen)
         flip_chessboard();
 }
 
-QString Chessboard::make_FEN()
+FEN Chessboard::writeFEN()
 {
-    QString fen;
-    for (int rank = 0; rank < 8; rank++) {
-        int empty = 0;
-        for (int file = 0; file < 8; file++) {
-            auto piece = piece_at(Position(file, rank + 1));
-            if (piece.get() == nullptr) {
-                empty++;
-                continue;
-            }
-            if (empty > 0) {
-                fen.append((QChar) ('0' + empty));
-                empty = 0;
-            }
-            if (piece->color() == WHITE)
-                fen.append(piece->code());
-            else
-                fen.append(piece->code().toLower());
-        }
-        fen.append('/');
-    }
-    fen.append(QString(' ').append(turn_ == WHITE ? 'w' : 'b'));
-
-    return fen;
+    return FEN().read(white_pieces_, black_pieces_);
 }
 
 void Chessboard::set_basic_board()
