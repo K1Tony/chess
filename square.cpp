@@ -10,9 +10,6 @@ Square::Square(QWidget *parent) : QLabel(parent)
         QString name = this->background_color().name();
         this->setStyleSheet("QLabel { background-color : " + name + " }");
     });
-    drag = new QDrag(parent);
-    mime_data = new QMimeData;
-    drag->setMimeData(mime_data);
 
     setAcceptDrops(true);
 }
@@ -50,15 +47,18 @@ void Square::mousePressEvent(QMouseEvent *event)
 
 void Square::mouseMoveEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton)
-        return;
-
     if ((event->pos() - drag_start).manhattanLength() < QApplication::startDragDistance())
         return;
-
+    if (drag_locked_ || pixmap().isNull())
+        return;
     QPixmap pm = pixmap().scaled(size(), Qt::KeepAspectRatio);
+    drag = new QDrag(this);
+    mime_data = new QMimeData;
+    drag->setMimeData(mime_data);
     drag->setPixmap(pm);
-    drag->exec();
+    drag->setHotSpot(QPoint(pm.width() / 2, pm.height() / 2));
+    drag->exec(Qt::MoveAction);
+    delete drag;
 }
 
 void Square::enterEvent([[maybe_unused]] QEnterEvent *event)
@@ -74,8 +74,10 @@ void Square::dragEnterEvent(QDragEnterEvent *event)
 
 void Square::dropEvent(QDropEvent *event)
 {
-    event->acceptProposedAction();
-    emit clicked();
+    if (is_highlighted()){
+        event->acceptProposedAction();
+        emit clicked();
+    }
 }
 
 void Square::highlight(const QString &color)

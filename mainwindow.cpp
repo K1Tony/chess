@@ -93,7 +93,6 @@ void MainWindow::set_interactive_squares()
             connect(chessboard_->at(file, rank).get(), &Square::clicked, this, [this, file, rank] () {
                 Position pos(file, rank);
                 PieceColor turn = this->chessboard_->turn(), opposite = (PieceColor) ((this->chessboard_->turn() + 1) % 2);
-                qDebug() << this->promoting_;
                 if (this->promoting_ && this->chessboard_->selected_piece()->tag() == PAWN) {
                     return;
                 } else if (this->promoting_){
@@ -103,35 +102,22 @@ void MainWindow::set_interactive_squares()
                 if (this->chessboard_->turn() == WHITE &&
                     this->chessboard_->white_pieces()->count(pos) > 0) {
                     // this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
+                    if (this->chessboard_->selected_piece())
+                        this->chessboard_->at(this->chessboard_->selected_piece()->position())->lock_drag();
+
                     this->chessboard_->select_piece(pos, WHITE);
-
-                    if (!this->chessboard_->selected_piece()->legal_moves().empty()){
-                        QDrag *drag = new QDrag(this->chessboard_->at(pos).get());
-                        QMimeData *mimeData = new QMimeData;
-
-                        QPixmap pm = this->chessboard_->at(pos)->pixmap();
-                        pm = pm.scaled(this->square_length_, this->square_length_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                        drag->setMimeData(mimeData);
-                        drag->setPixmap(pm);
-                        drag->setHotSpot(QPoint(pm.width() / 2, pm.height() / 2));
-                        drag->exec(Qt::MoveAction);
-                    }
+                    if (!this->chessboard_->selected_piece()->legal_moves().empty())
+                        this->chessboard_->at(pos)->unlock_drag();
 
                 } else if (this->chessboard_->turn() == BLACK &&
                            this->chessboard_->black_pieces()->count(pos) > 0) {
                     // this->chessboard_->at(pos)->setCursor(QCursor(Qt::PointingHandCursor));
+                    if (this->chessboard_->selected_piece())
+                        this->chessboard_->at(this->chessboard_->selected_piece()->position())->lock_drag();
                     this->chessboard_->select_piece(pos, BLACK);
-                    if (!this->chessboard_->selected_piece()->legal_moves().empty()){
-                        QDrag *drag = new QDrag(this->chessboard_->at(pos).get());
-                        QMimeData *mimeData = new QMimeData;
 
-                        QPixmap pm = this->chessboard_->at(pos)->pixmap();
-                        pm = pm.scaled(this->square_length_, this->square_length_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                        drag->setMimeData(mimeData);
-                        drag->setPixmap(pm);
-                        drag->setHotSpot(QPoint(pm.width() / 2, pm.height() / 2));
-                        drag->exec(Qt::MoveAction);
-                    }
+                    if (!this->chessboard_->selected_piece()->legal_moves().empty())
+                        this->chessboard_->at(pos)->unlock_drag();
 
                 // MOVING PIECE
                 } else if (this->chessboard_->selected_piece().get() != nullptr &&
