@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <movedialog.h>
 #include <drawofferwindow.h>
+#include <SettingsWindow.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,9 +24,9 @@ public:
 
 private:
     Ui::mainwindow *ui;
-    QWidget *settings_widget_ = new QWidget;
 
     std::unique_ptr<DrawOfferWindow> draw_offer_window_;
+    std::unique_ptr<SettingsWindow> settings_window_;
 
     MoveDialog *move_dialog_ = new MoveDialog;
 
@@ -39,6 +40,8 @@ private:
 
     int move_count_;
 
+    QPropertyNotifier draw_offer_notif_;
+
     QProperty<bool> mate_, draw_;
     QPropertyNotifier mate_notifier_, draw_notifier_;
 
@@ -48,6 +51,8 @@ private:
     bool resigned_ = false;
 
     void enable_buttons();
+
+    void init_settings();
 
     void init();
 

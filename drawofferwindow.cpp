@@ -8,18 +8,18 @@ DrawOfferWindow::DrawOfferWindow(QWidget *parent)
     ui->setupUi(this);
 
     connect(ui->accept, &QPushButton::clicked, this, [this] () {
-        this->action_taken_.setValue(true);
         this->offer_ = ACCEPTED;
+        this->action_taken_.setValue(true);
     });
 
     connect(ui->decline, &QPushButton::clicked, this, [this] () {
-        this->action_taken_.setValue(true);
         this->offer_ = DECLINED;
+        this->action_taken_.setValue(true);
     });
 
     connect(ui->ignore, &QPushButton::clicked, this, [this] () {
-        this->action_taken_.setValue(true);
         this->offer_ = IGNORED;
+        this->action_taken_.setValue(true);
     });
 }
 
@@ -32,4 +32,10 @@ void DrawOfferWindow::reset()
 {
     action_taken_.setValue(false);
     offer_ = IGNORED;
+}
+
+void DrawOfferWindow::show_offer(PieceColor color)
+{
+    ui->proposal->setText(QString(color == WHITE ? "White" : "Black") + " has offered a draw.");
+    show();
 }

@@ -19,7 +19,11 @@ public:
 
     [[nodiscard]] QProperty<bool> &action_taken() {return action_taken_;}
 
+    [[nodiscard]] DrawOffer offer() const {return offer_;}
+
     void reset();
+
+    void show_offer(PieceColor color);
 
 private:
     Ui::DrawOfferWindow *ui;

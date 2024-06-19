@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
     int playing_area = this->width() * 0.7;
     square_length_ = playing_area / 8;
     ui->gameStatus->setMinimumHeight(square_length_);
@@ -66,11 +65,39 @@ void MainWindow::enable_buttons()
     ui->load->setEnabled(true);
     ui->save->setEnabled(true);
     ui->undo->setEnabled(true);
+    ui->draw->setEnabled(true);
+}
+
+void MainWindow::init_settings()
+{
+    settings_window_.reset(new SettingsWindow());
 }
 
 void MainWindow::init()
 {
     // Chessboard init
+    draw_offer_window_.reset(new DrawOfferWindow());
+    draw_offer_notif_ = draw_offer_window_->action_taken().addNotifier([this] () {
+                                                              if (draw_offer_window_->action_taken().value()) {
+                                                                  switch (draw_offer_window_->offer()) {
+                                                                  case ACCEPTED:
+                                                                      this->draw_.setValue(true);
+
+                                                                      break;
+
+                                                                  case DECLINED:
+                                                                      break;
+
+                                                                  case IGNORED:
+                                                                      break;
+                                                                  }
+                                                                  qDebug() << draw_offer_window_->offer();
+                                                                  this->draw_offer_window_->reset();
+                                                                  this->draw_offer_window_->close();
+                                                              }
+    });
+
+    init_settings();
     chessboard_.reset(new Chessboard(square_length_, ui->chessGrid, ui->centralwidget));
     for (int i = 0; i < 10; i++) {
         ui->chessGrid->setColumnMinimumWidth(i, square_length_);
@@ -118,15 +145,14 @@ void MainWindow::init()
         this->resigned_ = true;
     });
 
+    connect(ui->draw, &QPushButton::clicked, this, [this] () {this->draw_offer_window_->show_offer(this->chessboard_->turn());});
+
     connect(ui->flip, &QPushButton::clicked, this, [this] () {
         this->chessboard_->flip_chessboard();
     });
 
     connect(ui->settings, &QPushButton::clicked, this, [this] () {
-        if (this->settings_widget_->isHidden())
-            this->settings_widget_->show();
-        else
-            this->settings_widget_->hide();
+        this->settings_window_->show();
     });
 
     connect(ui->undo, &QPushButton::clicked, this, [this] () {this->move_dialog_->undo();});
@@ -179,7 +205,10 @@ void MainWindow::init()
 }
 
 void MainWindow::closeEvent ([[maybe_unused]] QCloseEvent *event) {
-    settings_widget_->close();
+    if (settings_window_)
+        settings_window_->close();
+    if (draw_offer_window_)
+        draw_offer_window_->close();
 }
 
 void MainWindow::enableNewGame()
@@ -199,7 +228,7 @@ void MainWindow::set_interactive_squares()
     for (int rank = 1; rank <= 8; rank++) {
         for (int file = 0; file < 8; file++) {
             connect(chessboard_->at(file, rank).get(), &Square::hovered, this, [this, file, rank] () {
-                if (this->promoting_ || this->resigned_){
+                if (this->promoting_ || this->resigned_ || this->draw_.value()){
                     this->chessboard_->at(file, rank)->setCursor(QCursor(Qt::ArrowCursor));
                     return;
                 }
@@ -213,7 +242,7 @@ void MainWindow::set_interactive_squares()
             });
 
             connect(chessboard_->at(file, rank).get(), &Square::clicked, this, [this, file, rank] () {
-                if (this->resigned_)
+                if (this->resigned_ || this->draw_.value())
                     return;
                 Position pos(file, rank);
                 PieceColor turn = this->chessboard_->turn(), opposite = (PieceColor) ((this->chessboard_->turn() + 1) % 2);

@@ -26,7 +26,7 @@ SOURCES += \
     promotiondialog.cpp \
     queen.cpp \
     rook.cpp \
-    settingswidget.cpp \
+    settingswindow.cpp \
     square.cpp
 
 HEADERS += \
@@ -47,12 +47,13 @@ HEADERS += \
     properties.h \
     queen.h \
     rook.h \
-    settingswidget.h \
+    settingswindow.h \
     square.h
 
 FORMS += \
     drawofferwindow.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    settingswindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
