@@ -31,15 +31,27 @@ public:
 
     [[nodiscard]] int move_count() {return move_count_;}
 
+    [[nodiscard]] int max_undo() {return max_undo_;}
+
+    void set_max_undo(int max_undo) {
+        if (max_undo < 0)
+            max_undo_ = 0;
+        else
+            max_undo_ = max_undo;
+    }
+
     void append_move(const Move &move, bool twin);
 
-    void undo();
+    bool undo();
 
     void clear_moves();
 
 private:
     int move_count_;
     std::vector< Move > white_moves_, black_moves_;
+    int undo_count_ = 0;
+
+    int max_undo_ = 5;
 
     void init();
 

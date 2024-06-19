@@ -8,8 +8,8 @@ Pawn::Pawn(Position position, PieceColor color) : Piece(position, color)
     else
         pixmap_.reset(new QPixmap(":/graphics/resources/black-pawn.png"));
     tag_ = PAWN;
-    code_ = '\0';
-
+    code_ = 'P';
+    value_ = 1;
 }
 
 void Pawn::available_moves(

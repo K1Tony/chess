@@ -9,6 +9,7 @@ Knight::Knight(Position position, PieceColor color) : Piece(position, color)
         pixmap_.reset(new QPixmap(":/graphics/resources/black-knight.png"));
     tag_ = KNIGHT;
     code_ = 'N';
+    value_ = 3;
 }
 
 void Knight::available_moves(

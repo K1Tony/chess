@@ -14,6 +14,7 @@
 
 #include <colordialog.h>
 
+#include <FEN.h>
 #include <promotiondialog.h>
 
 
@@ -35,6 +36,8 @@ private:
     void promote(PieceTag tag);
 
     void reset_square_colors();
+
+    void set_pieces_on_squares();
 
 // public methods
 public:
@@ -67,6 +70,10 @@ public:
     [[nodiscard]] std::map<SpecialMoveTag, Position> &special_moves() {return special_moves_;}
 
     [[nodiscard]] std::unique_ptr<PromotionDialog> &promotion_dialog() {return promotion_dialog_;}
+
+    [[nodiscard]] bool flips_after_move() const {return flip_after_move_;}
+
+    void set_move_flip(bool flip) {flip_after_move_ = flip;}
 
     std::vector< std::shared_ptr<Piece> > get_attackers(File file, int rank, PieceColor color);
 
@@ -116,6 +123,17 @@ public:
 
     void undo();
 
+    void readFEN(const QString &fen);
+
+    void readFEN(const FEN &fen);
+
+    FEN writeFEN();
+
+    void set_basic_board();
+
+    void register_position();
+
+
 private:
     std::unique_ptr<QWidget> parent_;
 
@@ -162,6 +180,8 @@ private:
     bool white_up = true;
 
     int max_undos_ = 5;
+
+    bool flip_after_move_ = true;
 };
 
 #endif // CHESSBOARD_H

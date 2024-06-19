@@ -4,7 +4,10 @@
 #include "properties.h"
 #include "colordialog.h"
 #include "QProperty"
+#include <QMouseEvent>
 
+#include <QDrag>
+#include <QMimeData>
 #include <qlabel.h>
 
 class Square : public QLabel
@@ -25,16 +28,26 @@ public:
 
     void set_highlight(bool highlight) {highlighted_ = highlight;}
 
+    void lock_drag() {drag_locked_ = true;}
+
+    void unlock_drag() {drag_locked_ = false;}
+
 // members
     MColor background_color() const;
     void set_background_color(const MColor &new_background_color);
 
 private:
+    QDrag *drag;
+    QMimeData *mime_data;
+
+    QPoint drag_start;
+
     std::string code_;
     int rank_;
     File file_;
 
     bool highlighted_;
+    bool drag_locked_ = true;
 
     QProperty<MColor> background_color_ = QProperty<MColor>(MColor(255, 255, 255));
     QPropertyNotifier background_change_notifier_;
@@ -53,7 +66,13 @@ protected:
 
     void mousePressEvent([[maybe_unused]] QMouseEvent *event);
 
+    void mouseMoveEvent(QMouseEvent *event);
+
     void enterEvent([[maybe_unused]] QEnterEvent *event);
+
+    void dragEnterEvent(QDragEnterEvent *event);
+
+    void dropEvent(QDropEvent *event);
 
 public slots:
 

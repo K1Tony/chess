@@ -30,6 +30,8 @@ public:
 
     [[nodiscard]] QChar code() const {return code_;}
 
+    [[nodiscard]] int value() const {return value_;}
+
     void __set_legal_moves(std::vector<Position> &moves) {legal_moves_ = moves;}
 
     void set_color(int color) {color_ = (PieceColor) color;}
@@ -61,6 +63,8 @@ protected:
     std::vector<Position> legal_moves_;
 
     QChar code_;
+
+    int value_;
 
 };
 

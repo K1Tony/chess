@@ -14,6 +14,8 @@ SOURCES += \
     checks_logic.cpp \
     chessboard.cpp \
     colordialog.cpp \
+    drawofferwindow.cpp \
+    fen.cpp \
     king.cpp \
     knight.cpp \
     main.cpp \
@@ -24,6 +26,7 @@ SOURCES += \
     promotiondialog.cpp \
     queen.cpp \
     rook.cpp \
+    settingswindow.cpp \
     square.cpp
 
 HEADERS += \
@@ -32,6 +35,8 @@ HEADERS += \
     checks_logic.h \
     chessboard.h \
     colordialog.h \
+    drawofferwindow.h \
+    fen.h \
     king.h \
     knight.h \
     mainwindow.h \
@@ -42,10 +47,13 @@ HEADERS += \
     properties.h \
     queen.h \
     rook.h \
+    settingswindow.h \
     square.h
 
 FORMS += \
-    mainwindow.ui
+    drawofferwindow.ui \
+    mainwindow.ui \
+    settingswindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

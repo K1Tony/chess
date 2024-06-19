@@ -6,12 +6,11 @@ Move::Move(const Position &old_pos, const Position &new_pos, std::shared_ptr<Pie
 }
 
 
-
-
 MoveBox::MoveBox(const Move &move, bool has_twin_controller) : QStandardItem()
 {
     QString text;
-
+    setFlags(flags() & ~Qt::ItemIsEditable);
+    setTextAlignment(Qt::AlignCenter);
     if (move.special_ == LONG_CASTLING){
         text = "O-O-O";
     } else if (move.special_ == SHORT_CASTLING) {
@@ -56,6 +55,21 @@ void MoveDialog::append_move(const Move &move, bool twin)
     move_count_ += col;
 }
 
+bool MoveDialog::undo()
+{
+    if (undo_count_ == max_undo_ || move_count_ == 0)
+        return false;
+    move_count_--;
+    undo_count_++;
+    white_moves_.pop_back();
+    black_moves_.pop_back();
+
+    setItem(black_moves_.size(), 1, nullptr);
+    removeRow((int) white_moves_.size());
+
+    return true;
+}
+
 void MoveDialog::clear_moves()
 {
     clear();
@@ -65,6 +79,7 @@ void MoveDialog::clear_moves()
 void MoveDialog::init()
 {
     move_count_ = 0;
+    undo_count_ = 0;
     auto white = new QStandardItem(QObject::tr("White"));
     auto black = new QStandardItem(QObject::tr("Black"));
     setHorizontalHeaderItem(0, white);

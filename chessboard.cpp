@@ -1,5 +1,7 @@
 #include "chessboard.h"
 
+#include <FEN.h>
+
 bool Chessboard::is_attacked(const Position &position)
 {
     std::unique_ptr< std::map< Position, std::shared_ptr<Piece> > > &attacking_pieces =
@@ -27,6 +29,16 @@ void Chessboard::reset_square_colors()
         } else {
             square->set_background_color(basic_bg);
         }
+    }
+}
+
+void Chessboard::set_pieces_on_squares()
+{
+    for (auto &pair : *white_pieces_) {
+        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
+    }
+    for (auto &pair : *black_pieces_) {
+        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
     }
 }
 
@@ -165,12 +177,7 @@ void Chessboard::set_board()
         }
     }
 
-    for (auto &pair : *white_pieces_) {
-        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
-    }
-    for (auto &pair : *black_pieces_) {
-        squares_[pair.first.rank_ - 1][pair.first.file_]->setPixmap(*pair.second->pixmap());
-    }
+    set_pieces_on_squares();
     turn_ = WHITE;
     if (!white_up)
         flip_chessboard();
@@ -206,6 +213,54 @@ std::shared_ptr<QProperty<bool> > Chessboard::mate_property() const
 std::shared_ptr<QProperty<bool> > Chessboard::draw_property() const
 {
     return draw_property_;
+}
+
+void Chessboard::readFEN(const QString &fen)
+{
+    readFEN(FEN(fen));
+}
+
+void Chessboard::readFEN(const FEN &fen)
+{
+    set_basic_board();
+    white_pieces_->clear();
+    black_pieces_->clear();
+    fen.write(white_pieces_, black_pieces_);
+    set_pieces_on_squares();
+    for (std::pair<Position, std::shared_ptr<Piece>> pair : *white_pieces_) {
+        if (pair.second->tag() == KING) {
+            white_king_ = pair.second;
+            break;
+        }
+    }
+    for (std::pair<Position, std::shared_ptr<Piece>> pair : *black_pieces_) {
+        if (pair.second->tag() == KING) {
+            black_king_ = pair.second;
+            break;
+        }
+    }
+    turn_ = fen.turn();
+
+    moves_count_ = fen.halfmoves();
+    last_move_ = Move();
+    set_available_moves();
+    if (flip_after_move_ && ((turn_ == WHITE && !white_up) || (turn_ == BLACK && white_up)))
+        flip_chessboard();
+}
+
+FEN Chessboard::writeFEN()
+{
+    return FEN().read(white_pieces_, black_pieces_);
+}
+
+void Chessboard::set_basic_board()
+{
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            squares_[i][j]->setPixmap(blank_);
+            squares_[i][j]->set_background_color((i + j) % 2 == 0 ? color_dialog_.dark_square() : color_dialog_.light_square());
+        }
+    }
 }
 
 bool Chessboard::check_promotion()
@@ -255,7 +310,6 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
     parent_.reset(parent);
     layout_.reset(layout);
 
-    qDebug() << last_move_.special_;
 
     promotion_dialog_.reset(new PromotionDialog());
 
@@ -291,7 +345,7 @@ Chessboard::Chessboard(int square_size, QGridLayout *layout, QWidget *parent)
         }
     }
 
-    set_board();
+    readFEN(FEN::basic_fen);
 
     highlighted_moves_.reserve(28);
     set_available_moves();
@@ -459,7 +513,6 @@ void Chessboard::move(std::shared_ptr<Piece> &piece, const Position destination)
     at(last_move_.new_)->set_background_color(at(last_move_.new_)->background_color() + color_dialog_.last_move());
 
     moves_count_++;
-
 }
 
 void Chessboard::move(const Position destination)
