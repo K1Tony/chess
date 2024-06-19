@@ -9,7 +9,8 @@ Move::Move(const Position &old_pos, const Position &new_pos, std::shared_ptr<Pie
 MoveBox::MoveBox(const Move &move, bool has_twin_controller) : QStandardItem()
 {
     QString text;
-
+    setFlags(flags() & ~Qt::ItemIsEditable);
+    setTextAlignment(Qt::AlignCenter);
     if (move.special_ == LONG_CASTLING){
         text = "O-O-O";
     } else if (move.special_ == SHORT_CASTLING) {

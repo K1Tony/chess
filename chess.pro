@@ -14,6 +14,7 @@ SOURCES += \
     checks_logic.cpp \
     chessboard.cpp \
     colordialog.cpp \
+    drawofferwindow.cpp \
     fen.cpp \
     king.cpp \
     knight.cpp \
@@ -34,6 +35,7 @@ HEADERS += \
     checks_logic.h \
     chessboard.h \
     colordialog.h \
+    drawofferwindow.h \
     fen.h \
     king.h \
     knight.h \
@@ -49,6 +51,7 @@ HEADERS += \
     square.h
 
 FORMS += \
+    drawofferwindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.

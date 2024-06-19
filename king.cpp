@@ -8,6 +8,7 @@ King::King(Position position, PieceColor color) : Piece(position, color)
         pixmap_.reset(new QPixmap(":/graphics/resources/black-king.png"));
     tag_ = KING;
     code_ = 'K';
+    value_ = INT_MAX;
 }
 
 void King::available_moves(

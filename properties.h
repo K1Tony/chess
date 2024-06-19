@@ -20,6 +20,10 @@ enum SpecialMoveTag{
     EN_PASSANT, SHORT_CASTLING, LONG_CASTLING
 };
 
+enum DrawOffer{
+    ACCEPTED, IGNORED, DECLINED
+};
+
 typedef struct Position{
     File file_;
     int rank_;

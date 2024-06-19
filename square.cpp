@@ -12,12 +12,16 @@ Square::Square(QWidget *parent) : QLabel(parent)
     });
 
     setAcceptDrops(true);
+    setAlignment(Qt::AlignBottom | Qt::AlignLeft);
 }
 
 void Square::set_attributes(int rank, File file) {
     rank_ = rank;
     file_ = file;
     set_code();
+    if (rank == 1) {
+        setText(QString((QChar) ('A' + file)));
+    }
 }
 
 MColor Square::background_color() const
