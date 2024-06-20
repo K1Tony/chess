@@ -24,6 +24,11 @@ public:
 
     FEN &update_castling_rights(SpecialMoveTag style, PieceColor color);
 
+    FEN &set_turn(PieceColor turn) {
+        turn_ = turn == WHITE ? 'w' : 'b';
+        return *this;
+    }
+
     void write(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces) const;
 
     FEN &read(std::unique_ptr<piece_map> &white_pieces, std::unique_ptr<piece_map> &black_pieces);

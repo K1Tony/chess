@@ -17,7 +17,10 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Virtual Destructor Chess</string>
+  </property>
+  <property name="windowIcon">
+   <iconset theme="face-smile"/>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -48,7 +51,10 @@ border-color: rgb(0, 0, 0);
 border-width: 4;</string>
           </property>
           <property name="text">
-           <string/>
+           <string>White points: 0</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -61,7 +67,10 @@ border-color: rgb(255, 255, 255);
 border-width: 4;</string>
           </property>
           <property name="text">
-           <string/>
+           <string>Black points: 0</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -121,6 +130,26 @@ border-width: 4;</string>
          <string/>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
+         <item row="4" column="0">
+          <widget class="QPushButton" name="resign">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Resign</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QPushButton" name="draw">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Offer Draw</string>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0">
           <widget class="QPushButton" name="replay">
            <property name="enabled">
@@ -128,16 +157,6 @@ border-width: 4;</string>
            </property>
            <property name="text">
             <string>New Game</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QPushButton" name="settings">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Settings</string>
            </property>
           </widget>
          </item>
@@ -151,54 +170,68 @@ border-width: 4;</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QPushButton" name="resign">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
+         <item row="6" column="0">
+          <widget class="QPushButton" name="writeFen">
            <property name="text">
-            <string>Resign</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QPushButton" name="load">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Load Position</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QPushButton" name="save">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Save Position</string>
+            <string>Write FEN</string>
            </property>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QPushButton" name="undo">
+          <widget class="QPushButton" name="settings">
            <property name="enabled">
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>Undo</string>
+            <string>Settings</string>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QPushButton" name="draw">
-           <property name="enabled">
-            <bool>false</bool>
+         <item row="5" column="1">
+          <widget class="QComboBox" name="loader">
+           <property name="placeholderText">
+            <string>Select Position</string>
            </property>
-           <property name="text">
-            <string>Offer Draw</string>
-           </property>
+           <item>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Basic</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Stalemate</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2 Bishop</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2 Knight</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Bishop Knight</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>En Passant Mate</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Long Castles Mate</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>

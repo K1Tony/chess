@@ -16,6 +16,7 @@ SOURCES += \
     colordialog.cpp \
     drawofferwindow.cpp \
     fen.cpp \
+    game.cpp \
     king.cpp \
     knight.cpp \
     main.cpp \
@@ -37,6 +38,7 @@ HEADERS += \
     colordialog.h \
     drawofferwindow.h \
     fen.h \
+    game.h \
     king.h \
     knight.h \
     mainwindow.h \
