@@ -10,7 +10,6 @@ Square::Square(QWidget *parent) : QLabel(parent)
         QString name = this->background_color().name();
         this->setStyleSheet("QLabel { background-color : " + name + " }");
     });
-
     setAcceptDrops(true);
     setAlignment(Qt::AlignBottom | Qt::AlignLeft);
 }

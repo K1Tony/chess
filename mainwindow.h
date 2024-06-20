@@ -41,12 +41,16 @@ private:
     int move_count_;
 
     QPropertyNotifier draw_offer_notif_;
+    QPropertyNotifier flip_notif_;
 
     QProperty<bool> mate_, draw_;
     QPropertyNotifier mate_notifier_, draw_notifier_;
 
     QProperty<int> white_points_, black_points_;
     QPropertyNotifier white_pts_notif_, black_pts_notif_;
+
+    QPropertyNotifier light_square_changed_, dark_square_changed_, attacking_changed_,
+        last_move_changed_, promoting_changed_;
 
     bool resigned_ = false;
 

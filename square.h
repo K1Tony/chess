@@ -46,7 +46,7 @@ private:
     int rank_;
     File file_;
 
-    bool highlighted_;
+    bool highlighted_ = false;
     bool drag_locked_ = true;
 
     QProperty<MColor> background_color_ = QProperty<MColor>(MColor(255, 255, 255));

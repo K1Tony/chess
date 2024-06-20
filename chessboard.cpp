@@ -18,18 +18,29 @@ bool Chessboard::is_attacked(const Position &position)
 
 void Chessboard::reset_square_colors()
 {
-    for (int i = 0; i < 64; i++) {
-        std::unique_ptr<Square> &square = squares_[i / 8][i % 8];
-        MColor basic_bg = (i / 8 + i % 8) % 2 == 1 ? color_dialog_.light_square() : color_dialog_.dark_square();
-
-        if (square->is_highlighted()) {
-            square->set_background_color(basic_bg + color_dialog_.legal_move());
-        } else if (Position(i % 8, i / 8 + 1) == last_move_.old_ || Position(i % 8, i / 8 + 1) == last_move_.new_) {
-            square->set_background_color(basic_bg + color_dialog_.last_move());
-        } else {
-            square->set_background_color(basic_bg);
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            MColor basic_bg = (i + j) % 2 == 0 ? color_dialog_.dark_square() : color_dialog_.light_square();
+            if (squares_[i][j]->is_highlighted())
+                squares_[i][j]->set_background_color(basic_bg + color_dialog_.legal_move());
+            else if (Position(j, i + 1) == last_move_.old_ || Position(j, i + 1) == last_move_.new_)
+                squares_[i][j]->set_background_color(basic_bg + color_dialog_.last_move());
+            else
+                squares_[i][j]->set_background_color(basic_bg);
         }
     }
+    // for (int i = 0; i < 64; i++) {
+    //     std::unique_ptr<Square> &square = squares_[i / 8][i % 8];
+    //     MColor basic_bg = (i / 8 + i % 8) % 2 == 1 ? color_dialog_.light_square() : color_dialog_.dark_square();
+
+    //     if (square->is_highlighted()) {
+    //         square->set_background_color(basic_bg + color_dialog_.legal_move());
+    //     } else if (Position(i % 8, i / 8 + 1) == last_move_.old_ || Position(i % 8, i / 8 + 1) == last_move_.new_) {
+    //         square->set_background_color(basic_bg + color_dialog_.last_move());
+    //     } else {
+    //         square->set_background_color(basic_bg);
+    //     }
+    // }
 }
 
 void Chessboard::set_pieces_on_squares()
@@ -250,7 +261,7 @@ void Chessboard::readFEN(const FEN &fen)
 
 FEN Chessboard::writeFEN()
 {
-    return FEN().read(white_pieces_, black_pieces_);
+    return FEN().read(white_pieces_, black_pieces_).set_turn(turn_);
 }
 
 void Chessboard::set_basic_board()

@@ -33,6 +33,7 @@ QString FEN::to_string()
                   [&result] (const QString &str) -> void {result.append(str).append('/');});
     result.removeLast().append(' ').append(turn_);
     result.append(' ').append(castling_rights_);
+    result.append(' ').append(en_passant_);
     result.append(' ').append(halfmoves_);
     result.append(' ').append(fullmoves_);
     return result;
